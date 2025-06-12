@@ -42,14 +42,21 @@ class LoginPage : ComponentActivity() {
             if (isLoggedIn) {
                 MainScreen()
             } else {
-                LoginScreen { isLoggedIn = true }
+                LoginScreen { username, password ->
+                    // Simple authentication check
+                    if (username == "expectedUsername" && password == "expectedPassword") {
+                        isLoggedIn = true
+                    } else {
+                        // Handle login failure, e.g., show an error message
+                    }
+                }
             }
         }
     }
 }
 
 @Composable
-fun LoginScreen(onLogin: () -> Unit) {
+fun LoginScreen(onLogin: (String, String) -> Unit) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
@@ -107,7 +114,7 @@ fun LoginScreen(onLogin: () -> Unit) {
         Spacer(modifier = Modifier.height(32.dp))
 
         Button(
-            onClick = onLogin,
+            onClick = { onLogin(username, password) },
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE6482F))
         ) {
             Text("Login", color = Color.White)
