@@ -1,7 +1,12 @@
 package com.example.projeto
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 
 // Data class for user account information
 data class UserAccount(
@@ -16,7 +21,18 @@ data class UserAccount(
 
 @Composable
 fun SettingsContent(paddingValues: PaddingValues) {
-    TODO("Not yet implemented")
+    // Exemplo de implementação básica da tela de configurações
+    Column(modifier = Modifier.padding(paddingValues)) {
+        Text(text = "Configurações", style = MaterialTheme.typography.headlineLarge)
+
+        // Exemplo de exibição de algumas configurações
+        Text(text = "Notificações Push: Ativadas")
+        Text(text = "Tema Escuro: Ativado")
+        Text(text = "Idioma: Português")
+        Text(text = "Qualidade de Vídeo: HD")
+
+        // Adicione mais componentes de UI conforme necessário
+    }
 }
 
 // Enum for user roles

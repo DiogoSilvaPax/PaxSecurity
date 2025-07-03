@@ -62,8 +62,7 @@ fun MainScreen() {
                         Icon(
                             painter = painterResource(R.drawable.videocam),
                             contentDescription = "Câmaras",
-                            tint = if (selectedTab == 1) Color.Black else Color.White,
-                            modifier = Modifier.size(24.dp)
+                            tint = if (selectedTab == 1) Color.Black else Color.White
                         )
                     }
                 )

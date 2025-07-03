@@ -44,7 +44,7 @@ class LoginPage : ComponentActivity() {
             } else {
                 LoginScreen { username, password ->
                     // Simple authentication check
-                    if (username == "expectedUsername" && password == "expectedPassword") {
+                    if (username == "" && password == "") {
                         isLoggedIn = true
                     } else {
                         // Handle login failure, e.g., show an error message
@@ -69,9 +69,9 @@ fun LoginScreen(onLogin: (String, String) -> Unit) {
         verticalArrangement = Arrangement.Center
     ) {
         Image(
-            painter = painterResource(id = R.drawable.security),
+            painter = painterResource(id = R.drawable.logotipopreto),
             contentDescription = "Logo",
-            modifier = Modifier.size(100.dp)
+            modifier = Modifier.size(180.dp)
         )
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -80,7 +80,7 @@ fun LoginScreen(onLogin: (String, String) -> Unit) {
             value = username,
             onValueChange = { username = it },
             label = { Text("Username") },
-            leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
+            leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = Color.White ) },
             colors = OutlinedTextFieldDefaults.colors(
                 focusedTextColor = Color.White,
                 unfocusedTextColor = Color.White,
@@ -98,7 +98,7 @@ fun LoginScreen(onLogin: (String, String) -> Unit) {
             value = password,
             onValueChange = { password = it },
             label = { Text("Password") },
-            leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
+            leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = Color.White ) },
             visualTransformation = PasswordVisualTransformation(),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedTextColor = Color.White,
