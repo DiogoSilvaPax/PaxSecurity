@@ -99,7 +99,7 @@ fun NotificationsContent(paddingValues: PaddingValues) {
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(bottom = 240.dp)
+            modifier = Modifier.padding(bottom = 250.dp)
         ) {
 
         }
