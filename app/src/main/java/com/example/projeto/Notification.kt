@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -26,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.projeto.R
@@ -44,6 +46,39 @@ enum class NotificationType {
 
 @Composable
 fun NotificationsContent(paddingValues: PaddingValues) {
+
+
+    Column(modifier = Modifier.padding(paddingValues)) {
+
+        Icon(
+            Icons.Default.Notifications,
+            contentDescription = "camera",
+            modifier = Modifier
+                .padding(top = 75.dp)
+                .fillMaxWidth()
+                .size(50.dp),
+            tint = Color.White
+
+        )
+
+
+        Text(
+            text = "Notificações",
+            color = Color.White,
+            fontSize = 40.sp,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 40.dp)
+
+        )
+
+    }
+
+
+
+
     // Sample notifications data
     val notifications = remember {
         listOf(
@@ -64,21 +99,9 @@ fun NotificationsContent(paddingValues: PaddingValues) {
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(bottom = 16.dp)
+            modifier = Modifier.padding(bottom = 240.dp)
         ) {
-            Icon(
-                painter = painterResource(id = R.drawable.security),
-                contentDescription = "Logo",
-                tint = Color.White,
-                modifier = Modifier.size(50.dp)
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            Text(
-                text = "Notificações",
-                color = Color.White,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold
-            )
+
         }
 
         LazyColumn(

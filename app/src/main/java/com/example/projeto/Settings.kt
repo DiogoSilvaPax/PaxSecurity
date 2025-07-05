@@ -2,11 +2,22 @@ package com.example.projeto
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 // Data class for user account information
 data class UserAccount(
@@ -23,10 +34,34 @@ data class UserAccount(
 fun SettingsContent(paddingValues: PaddingValues) {
     // Exemplo de implementação básica da tela de configurações
     Column(modifier = Modifier.padding(paddingValues)) {
-        Text(text = "Configurações", style = MaterialTheme.typography.headlineLarge)
+
+        Icon(
+            imageVector = Icons.Default.Settings,
+            contentDescription = "definições",
+
+            modifier = Modifier
+                .padding(top = 75.dp)
+                .fillMaxWidth()
+                .size(50.dp),
+            tint = Color.White
+
+        )
+
+
+        Text(
+            text = "Definições",
+            color = Color.White,
+            fontSize = 40.sp,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 40.dp)
+
+        )
 
         // Exemplo de exibição de algumas configurações
-        Text(text = "Notificações Push: Ativadas")
+        Text(text = "Notificações  Ativadas")
         Text(text = "Tema Escuro: Ativado")
         Text(text = "Idioma: Português")
         Text(text = "Qualidade de Vídeo: HD")

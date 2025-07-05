@@ -24,7 +24,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,24 +46,25 @@ fun MainScreen() {
                 containerColor = Color.Black
             ) {
                 NavigationBarItem(
-                    selected = selectedTab == 0,
-                    onClick = { selectedTab = 0 },
-                    icon = {
-                        Icon(
-                            Icons.Default.Notifications,
-                            contentDescription = "Alertas",
-                            tint = if (selectedTab == 0) Color.Black else Color.White
-                        )
-                    }
-                )
-                NavigationBarItem(
                     selected = selectedTab == 1,
                     onClick = { selectedTab = 1 },
                     icon = {
                         Icon(
+                            Icons.Default.Notifications,
+                            contentDescription = "Alertas",
+                            tint = if (selectedTab == 1) Color.Black else Color.White
+                        )
+                    }
+                )
+                NavigationBarItem(
+                    selected = selectedTab == 0,
+                    onClick = { selectedTab = 0 },
+                    icon = {
+                        Icon(
                             painter = painterResource(R.drawable.videocam),
                             contentDescription = "Câmaras",
-                            tint = if (selectedTab == 1) Color.Black else Color.White
+                            tint = if (selectedTab == 0) Color.Black else Color.White,
+                            modifier = Modifier.size(24.dp)
                         )
                     }
                 )
@@ -82,9 +84,9 @@ fun MainScreen() {
         containerColor = Color.Black
     ) { paddingValues ->
         when (selectedTab) {
-            0 -> NotificationsContent(paddingValues)
-            1 -> CameraContent(paddingValues)
-            2 -> SettingsContent(paddingValues)
+            0 -> CameraContent(paddingValues = paddingValues)
+            1 -> NotificationsContent(paddingValues = paddingValues)
+            2 -> SettingsContent(paddingValues = paddingValues)
         }
     }
 }

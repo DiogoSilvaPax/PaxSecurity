@@ -1,7 +1,22 @@
 package com.example.projeto
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 // Data class for individual camera
 data class Camera(
@@ -14,10 +29,59 @@ data class Camera(
     val batteryLevel: Int? = null, // null for wired cameras
     val lastActivity: String
 )
-
 @Composable
 fun CameraContent(paddingValues: PaddingValues) {
-    TODO("Not yet implemented")
+
+    Column(modifier = Modifier.padding(paddingValues)) {
+
+        Icon(
+            painter = painterResource(R.drawable.videocam),
+            contentDescription = "camera",
+            modifier = Modifier
+                .padding(top = 75.dp)
+                .fillMaxWidth()
+                .size(35.dp),
+            tint = Color.White
+
+        )
+
+
+        Text(
+            text = "Câmaras",
+            color = Color.White,
+            fontSize = 40.sp,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 40.dp)
+
+        )
+
+    }
+
+
+
+
+
+
+
+
+
+    // Obtenha a lista de câmeras
+    val cameras = Cameras().getAllCameras()
+
+    // Verifique se há câmeras para exibir
+    if (cameras.isNotEmpty()) {
+        Column(modifier = Modifier.padding(paddingValues)) {
+            cameras.forEach { camera ->
+                Text(text = "Nome: ${camera.name}, Localização: ${camera.location}, Status: ${camera.status}")
+            }
+        }
+    } else {
+        // Mensagem caso não haja câmeras
+        Text(text = "Nenhuma câmera disponível", modifier = Modifier.padding(paddingValues))
+    }
 }
 
 // Enum for camera status
