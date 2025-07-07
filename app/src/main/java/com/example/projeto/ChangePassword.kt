@@ -9,6 +9,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -16,11 +17,16 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.projeto.viewmodel.UserViewModel
 
 @Composable
 fun ChangePassword(navController: NavController) {
+    val userViewModel: UserViewModel = viewModel()
     var currentPassword by remember { mutableStateOf("") }
     var newPassword by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
+    var showSuccess by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -67,10 +73,42 @@ fun ChangePassword(navController: NavController) {
             modifier = Modifier.fillMaxWidth()
         )
 
+        Spacer(modifier = Modifier.height(12.dp))
+
+        OutlinedTextField(
+            value = confirmPassword,
+            onValueChange = { confirmPassword = it },
+            label = { Text("Confirmar nova palavra-passe") },
+            visualTransformation = PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Password),
+            modifier = Modifier.fillMaxWidth()
+        )
+
         Spacer(modifier = Modifier.height(24.dp))
 
-        Button(onClick = { /* Guardar a nova password */ }, modifier = Modifier.fillMaxWidth()) {
+        Button(
+            onClick = { 
+                if (newPassword == confirmPassword && newPassword.isNotEmpty()) {
+                    userViewModel.updatePassword(newPassword)
+                    showSuccess = true
+                    errorMessage = ""
+                } else {
+                    errorMessage = "As palavras-passe não coincidem ou estão vazias"
+                }
+            }, 
+            modifier = Modifier.fillMaxWidth()
+        ) {
             Text("Guardar")
+        }
+        
+        if (showSuccess) {
+            Spacer(modifier = Modifier.height(16.dp))
+            Text("Palavra-passe atualizada com sucesso!", color = Color.Green)
+        }
+        
+        if (errorMessage.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(errorMessage, color = Color.Red)
         }
     }
 }

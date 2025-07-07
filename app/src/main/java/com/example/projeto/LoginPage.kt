@@ -3,6 +3,7 @@ package com.example.projeto
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -21,7 +22,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,12 +36,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import com.example.projeto.viewmodel.LoginState
+import com.example.projeto.viewmodel.UserViewModel
 
 class LoginPage : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             var isLoggedIn by remember { mutableStateOf(false) }
+            val userViewModel: UserViewModel by viewModels()
 
             if (isLoggedIn) {
                 MainScreen()
@@ -47,7 +54,7 @@ class LoginPage : ComponentActivity() {
                     if (username == "" && password == "") {
                         isLoggedIn = true
                     } else {
-                        // Handle login failure, e.g., show an error message
+                        userViewModel.login(username, password)
                     }
                 }
             }
@@ -57,8 +64,25 @@ class LoginPage : ComponentActivity() {
 
 @Composable
 fun LoginScreen(onLogin: (String, String) -> Unit) {
+    val userViewModel: UserViewModel by viewModels()
+    val loginState by userViewModel.loginState.collectAsState()
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var isLoggedIn by remember { mutableStateOf(false) }
+    
+    LaunchedEffect(loginState) {
+        when (loginState) {
+            is LoginState.Success -> {
+                isLoggedIn = true
+            }
+            else -> {}
+        }
+    }
+    
+    if (isLoggedIn) {
+        MainScreen()
+        return
+    }
 
     Column(
         modifier = Modifier
@@ -114,10 +138,29 @@ fun LoginScreen(onLogin: (String, String) -> Unit) {
         Spacer(modifier = Modifier.height(32.dp))
 
         Button(
-            onClick = { onLogin(username, password) },
+            onClick = { 
+                if (username.isNotEmpty() && password.isNotEmpty()) {
+                    userViewModel.login(username, password)
+                } else {
+                    onLogin(username, password)
+                }
+            },
+            enabled = loginState !is LoginState.Loading,
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE6482F))
         ) {
-            Text("Login", color = Color.White)
+            if (loginState is LoginState.Loading) {
+                CircularProgressIndicator(color = Color.White, modifier = Modifier.size(16.dp))
+            } else {
+                Text("Login", color = Color.White)
+            }
+        }
+        
+        if (loginState is LoginState.Error) {
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = loginState.message,
+                color = Color.Red
+            )
         }
     }
 }

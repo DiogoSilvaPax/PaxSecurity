@@ -31,6 +31,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.projeto.R
+import com.example.projeto.viewmodel.NotificationViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.runtime.collectAsState
+import com.example.projeto.utils.NotificationMapper
 
 data class Notification(
     val id: Int,
@@ -46,7 +50,12 @@ enum class NotificationType {
 
 @Composable
 fun NotificationsContent(paddingValues: PaddingValues) {
+    val notificationViewModel: NotificationViewModel = viewModel()
+    val notificationsFromDb by notificationViewModel.notifications.collectAsState()
+    val unreadCount by notificationViewModel.unreadCount.collectAsState()
 
+    // Convert database notifications to UI notifications
+    val notifications = notificationsFromDb.map { NotificationMapper.fromEntity(it) }
 
     Column(modifier = Modifier.padding(paddingValues)) {
 
@@ -76,21 +85,6 @@ fun NotificationsContent(paddingValues: PaddingValues) {
 
     }
 
-
-
-
-    // Sample notifications data
-    val notifications = remember {
-        listOf(
-            Notification(1, "Movimento Detectado", "Câmara 01 - Entrada principal", "10:30", NotificationType.ALERT),
-            Notification(2, "Sistema Online", "Todas as câmaras conectadas", "09:15", NotificationType.INFO),
-            Notification(3, "Bateria Baixa", "Câmara 03 - Jardim", "08:45", NotificationType.WARNING),
-            Notification(4, "Acesso Negado", "Tentativa de login falhada", "08:20", NotificationType.ALERT),
-            Notification(5, "Manutenção", "Sistema será atualizado às 02:00", "07:30", NotificationType.INFO),
-            Notification(6, "Movimento Detectado", "Câmara 05 - Garagem", "07:15", NotificationType.ALERT)
-        )
-    }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -108,15 +102,30 @@ fun NotificationsContent(paddingValues: PaddingValues) {
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            if (notifications.isEmpty()) {
+                item {
+                    Text(
+                        text = "Nenhuma notificação disponível",
+                        color = Color.Gray,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+            }
             items(notifications) { notification ->
-                NotificationCard(notification = notification)
+                NotificationCard(
+                    notification = notification,
+                    onMarkAsRead = { notificationViewModel.markAsRead(notification.id) }
+                )
             }
         }
     }
 }
 
 @Composable
-fun NotificationCard(notification: Notification) {
+fun NotificationCard(
+    notification: Notification,
+    onMarkAsRead: () -> Unit = {}
+) {
     val backgroundColor = when (notification.type) {
         NotificationType.ALERT -> Color(0xFF8B0000)
         NotificationType.WARNING -> Color(0xFF8B4513)
@@ -132,7 +141,8 @@ fun NotificationCard(notification: Notification) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 4.dp),
+            .padding(horizontal = 4.dp)
+            .clickable { onMarkAsRead() },
         colors = CardDefaults.cardColors(containerColor = backgroundColor),
         shape = RoundedCornerShape(8.dp)
     ) {

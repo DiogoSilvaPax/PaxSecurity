@@ -8,15 +8,26 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.projeto.viewmodel.UserViewModel
 
 @Composable
 fun ChangeEmail(navController: NavController) {
+    val userViewModel: UserViewModel = viewModel()
+    val currentUser by userViewModel.currentUser.collectAsState()
     var email by remember { mutableStateOf("") }
+    var showSuccess by remember { mutableStateOf(false) }
+    
+    LaunchedEffect(currentUser) {
+        currentUser?.let {
+            email = it.email
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -54,8 +65,19 @@ fun ChangeEmail(navController: NavController) {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        Button(onClick = { /* Guardar novo email */ }, modifier = Modifier.fillMaxWidth()) {
+        Button(
+            onClick = { 
+                userViewModel.updateEmail(email)
+                showSuccess = true
+            }, 
+            modifier = Modifier.fillMaxWidth()
+        ) {
             Text("Guardar")
+        }
+        
+        if (showSuccess) {
+            Spacer(modifier = Modifier.height(16.dp))
+            Text("Email atualizado com sucesso!", color = Color.Green)
         }
     }
 }
