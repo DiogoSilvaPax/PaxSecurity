@@ -20,26 +20,27 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.projeto.ui.theme.ThemeManager
 
 // --- NAVIGATION ---
 @Composable
-fun SettingsPage(onLogout: () -> Unit = {}) {
+fun SettingsPage(themeManager: ThemeManager, onLogout: () -> Unit = {}) {
     val navController = rememberNavController()
 
     NavHost(navController, startDestination = "settings") {
-        composable("settings") { SettingsContent(navController, onLogout) }
+        composable("settings") { SettingsContent(navController, themeManager, onLogout) }
         composable("change_password") { ChangePassword(navController) }
         composable("change_email") { ChangeEmail(navController) }
         composable("logout") { Logout(navController, onLogout) }
         composable("support") { Support(navController) }
+        composable("client_registration") { ClientRegistration(navController) }
     }
 }
 
 // --- SETTINGS SCREEN ---
 @Composable
-fun SettingsContent(navController: NavController, onLogout: () -> Unit = {}) {
+fun SettingsContent(navController: NavController, themeManager: ThemeManager, onLogout: () -> Unit = {}) {
     var notificationsEnabled by remember { mutableStateOf(false) }
-    var darkThemeEnabled by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -54,12 +55,12 @@ fun SettingsContent(navController: NavController, onLogout: () -> Unit = {}) {
                 .fillMaxWidth()
                 .padding(top = 75.dp)
                 .size(50.dp),
-            tint = Color.White
+            tint = MaterialTheme.colorScheme.onBackground
         )
 
         Text(
             text = "Definições",
-            color = Color.White,
+            color = MaterialTheme.colorScheme.onBackground,
             fontSize = 40.sp,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
@@ -93,9 +94,15 @@ fun SettingsContent(navController: NavController, onLogout: () -> Unit = {}) {
             SwitchItem(
                 title = "Tema Escuro",
                 icon = Icons.Default.Visibility,
-                checked = darkThemeEnabled,
-                onCheckedChange = { darkThemeEnabled = it }
+                checked = themeManager.isDarkTheme,
+                onCheckedChange = { themeManager.toggleTheme() }
             )
+        }
+
+        SettingsSection(title = "Clientes") {
+            SettingsItem("Registar Cliente", Icons.Default.PersonAdd) {
+                navController.navigate("client_registration")
+            }
         }
 
         SettingsSection(title = "Sobre") {
@@ -115,10 +122,14 @@ fun SettingsSection(title: String, content: @Composable ColumnScope.() -> Unit) 
             .fillMaxWidth()
             .padding(vertical = 8.dp),
         shape = MaterialTheme.shapes.medium,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = title, style = MaterialTheme.typography.titleMedium)
+            Text(
+                text = title, 
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
             content()
         }
     }
@@ -133,13 +144,17 @@ fun SettingsItem(title: String, icon: ImageVector, enabled: Boolean = true, onCl
             .padding(vertical = 8.dp)
             .clickable(enabled = enabled) { onClick() }
     ) {
-        Icon(icon, contentDescription = null)
+        Icon(
+            icon, 
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurface
+        )
         Spacer(modifier = Modifier.width(16.dp))
         Text(
             text = title,
             style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier.weight(1f),
-            color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
+            color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
         )
     }
 }
@@ -152,13 +167,25 @@ fun SwitchItem(title: String, icon: ImageVector, checked: Boolean, onCheckedChan
             .fillMaxWidth()
             .padding(vertical = 8.dp)
     ) {
-        Icon(icon, contentDescription = null)
+        Icon(
+            icon, 
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurface
+        )
         Spacer(modifier = Modifier.width(16.dp))
         Text(
             text = title,
             style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
+            color = MaterialTheme.colorScheme.onSurface
         )
-        Switch(checked = checked, onCheckedChange = onCheckedChange)
+        Switch(
+            checked = checked, 
+            onCheckedChange = onCheckedChange,
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = MaterialTheme.colorScheme.primary,
+                checkedTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+            )
+        )
     }
 }

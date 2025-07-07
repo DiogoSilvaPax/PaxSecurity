@@ -21,6 +21,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.projeto.ui.theme.ThemeManager
 
 
 class MainActivity : ComponentActivity() {
@@ -40,14 +41,14 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainScreen(onLogout: () -> Unit = {}) {
+fun MainScreen(themeManager: ThemeManager, onLogout: () -> Unit = {}) {
     var selectedTab by remember { mutableStateOf(0) }
     val navController = rememberNavController()
 
     Scaffold(
         bottomBar = {
             NavigationBar(
-                containerColor = Color.Black
+                containerColor = MaterialTheme.colorScheme.surface
             ) {
                 NavigationBarItem(
                     selected = selectedTab == 1,
@@ -56,7 +57,7 @@ fun MainScreen(onLogout: () -> Unit = {}) {
                         Icon(
                             Icons.Default.Notifications,
                             contentDescription = "Alertas",
-                            tint = if (selectedTab == 1) Color.Black else Color.White
+                            tint = if (selectedTab == 1) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
                         )
                     }
                 )
@@ -67,7 +68,7 @@ fun MainScreen(onLogout: () -> Unit = {}) {
                         Icon(
                             painter = painterResource(R.drawable.videocam),
                             contentDescription = "Câmaras",
-                            tint = if (selectedTab == 0) Color.Black else Color.White,
+                            tint = if (selectedTab == 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.size(24.dp)
                         )
                     }
@@ -79,18 +80,18 @@ fun MainScreen(onLogout: () -> Unit = {}) {
                         Icon(
                             Icons.Default.Settings,
                             contentDescription = "Definições",
-                            tint = if (selectedTab == 2) Color.Black else Color.White
+                            tint = if (selectedTab == 2) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
                         )
                     }
                 )
             }
         },
-        containerColor = Color.Black
+        containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         when (selectedTab) {
             0 -> CameraContent(paddingValues = paddingValues)
             1 -> NotificationsContent(paddingValues = paddingValues)
-            2 -> SettingsPage(onLogout = onLogout)
+            2 -> SettingsPage(themeManager = themeManager, onLogout = onLogout)
         }
     }
 }

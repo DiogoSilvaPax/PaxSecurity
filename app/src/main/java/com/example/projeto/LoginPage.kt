@@ -39,32 +39,38 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.projeto.viewmodel.LoginState
 import com.example.projeto.viewmodel.UserViewModel
+import com.example.projeto.ui.theme.ProjetoTheme
+import com.example.projeto.ui.theme.ThemeManager
 
 class LoginPage : ComponentActivity() {
     private val userViewModel: UserViewModel by viewModels()
+    private val themeManager = ThemeManager()
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val loginState by userViewModel.loginState.collectAsState()
-            val isLoggedIn = loginState is LoginState.Success
+            ProjetoTheme(darkTheme = themeManager.isDarkTheme) {
+                val loginState by userViewModel.loginState.collectAsState()
+                val isLoggedIn = loginState is LoginState.Success
 
-            if (isLoggedIn) {
-                MainScreen(
-                    onLogout = {
-                        userViewModel.logout()
-                    }
-                )
-            } else {
-                LoginScreen(
-                    userViewModel = userViewModel,
-                    onLogin = { username, password ->
-                        // Simple authentication check for empty credentials
-                        if (username == "" && password == "") {
-                            userViewModel.setLoggedIn()
+                if (isLoggedIn) {
+                    MainScreen(
+                        themeManager = themeManager,
+                        onLogout = {
+                            userViewModel.logout()
                         }
-                    }
-                )
+                    )
+                } else {
+                    LoginScreen(
+                        userViewModel = userViewModel,
+                        onLogin = { username, password ->
+                            // Simple authentication check for empty credentials
+                            if (username == "" && password == "") {
+                                userViewModel.setLoggedIn()
+                            }
+                        }
+                    )
+                }
             }
         }
     }
@@ -82,7 +88,7 @@ fun LoginScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black)
+            .background(MaterialTheme.colorScheme.background)
             .padding(32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
@@ -101,14 +107,14 @@ fun LoginScreen(
             label = { Text("Username") },
             leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = Color.White ) },
             colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
-                focusedContainerColor = Color.DarkGray,
-                unfocusedContainerColor = Color.DarkGray,
-                focusedBorderColor = Color.Gray,
-                unfocusedBorderColor = Color.Gray,
-                focusedLabelColor = Color.Gray,
-                unfocusedLabelColor = Color.Gray
+                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                focusedLabelColor = MaterialTheme.colorScheme.primary,
+                unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
             )
         )
         Spacer(modifier = Modifier.height(15.dp))
@@ -120,14 +126,14 @@ fun LoginScreen(
             leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = Color.White ) },
             visualTransformation = PasswordVisualTransformation(),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
-                focusedContainerColor = Color.DarkGray,
-                unfocusedContainerColor = Color.DarkGray,
-                focusedBorderColor = Color.Gray,
-                unfocusedBorderColor = Color.Gray,
-                focusedLabelColor = Color.Gray,
-                unfocusedLabelColor = Color.Gray
+                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                focusedLabelColor = MaterialTheme.colorScheme.primary,
+                unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
             )
         )
         Spacer(modifier = Modifier.height(32.dp))
@@ -141,12 +147,12 @@ fun LoginScreen(
                 }
             },
             enabled = loginState !is LoginState.Loading,
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE6482F))
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
         ) {
             if (loginState is LoginState.Loading) {
                 CircularProgressIndicator(color = Color.White, modifier = Modifier.size(16.dp))
-            } else {
-                Text("Login", color = Color.White)
+                    color = MaterialTheme.colorScheme.onPrimary,
+                Text("Login", color = MaterialTheme.colorScheme.onPrimary)
             }
         }
         
