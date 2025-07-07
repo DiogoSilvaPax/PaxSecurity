@@ -58,7 +58,27 @@ fun NotificationsContent(paddingValues: PaddingValues) {
     val unreadCount by notificationViewModel.unreadCount.collectAsState()
 
     // Convert database notifications to UI notifications
-    val notifications = notificationsFromDb.map { NotificationMapper.fromEntity(it) }
+    val notifications = notificationsFromDb.map { entity ->
+        Notification(
+            id = entity.notificationId,
+            title = when (entity.type.lowercase()) {
+                "movement" -> "Movimento Detectado"
+                "system" -> "Sistema"
+                "battery" -> "Bateria"
+                "access" -> "Acesso"
+                "maintenance" -> "Manutenção"
+                else -> "Notificação"
+            },
+            message = entity.message,
+            time = java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault()).format(entity.notificationDate),
+            type = when (entity.type.lowercase()) {
+                "movement", "access" -> NotificationType.ALERT
+                "battery", "maintenance" -> NotificationType.WARNING
+                "system" -> NotificationType.INFO
+                else -> NotificationType.INFO
+            }
+        )
+    }
 
     Column(modifier = Modifier.padding(paddingValues)) {
 

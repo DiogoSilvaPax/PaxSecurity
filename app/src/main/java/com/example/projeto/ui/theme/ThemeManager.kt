@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 
 class ThemeManager {
-    var isDarkTheme by mutableStateOf(true) // Começar com tema escuro por padrão
+    var isDarkTheme by mutableStateOf(true)
         private set
     
     fun toggleTheme() {

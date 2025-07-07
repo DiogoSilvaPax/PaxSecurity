@@ -17,8 +17,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.remember
-import com.example.projeto.ui.theme.ThemeManager
 import com.example.projeto.ui.theme.ProjetoTheme
+import com.example.projeto.ui.theme.ThemeManager
 
 
 class MainActivity : ComponentActivity() {
