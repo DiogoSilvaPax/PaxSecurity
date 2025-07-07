@@ -16,16 +16,18 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.remember
 import com.example.projeto.ui.theme.ThemeManager
+import com.example.projeto.ui.theme.ProjetoTheme
 
 
 class MainActivity : ComponentActivity() {
-    private val themeManager = ThemeManager()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MaterialTheme {
+            val themeManager = remember { ThemeManager() }
+            ProjetoTheme(darkTheme = themeManager.isDarkTheme) {
                 MainScreen(themeManager = themeManager)
             }
         }
@@ -36,7 +38,6 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen(themeManager: ThemeManager, onLogout: () -> Unit = {}) {
     var selectedTab by remember { mutableStateOf(0) }
-    val navController = rememberNavController()
 
     Scaffold(
         bottomBar = {

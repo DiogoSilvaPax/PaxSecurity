@@ -3,10 +3,9 @@ package com.example.projeto.ui.theme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
 
-class ThemeManager : ViewModel() {
-    var isDarkTheme by mutableStateOf(false)
+class ThemeManager {
+    var isDarkTheme by mutableStateOf(true) // Começar com tema escuro por padrão
         private set
     
     fun toggleTheme() {

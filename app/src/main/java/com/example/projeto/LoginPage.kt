@@ -41,22 +41,19 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.projeto.viewmodel.LoginState
 import com.example.projeto.viewmodel.UserViewModel
 import com.example.projeto.ui.theme.ProjetoTheme
-import com.example.projeto.ui.theme.ThemeManager
 
 class LoginPage : ComponentActivity() {
     private val userViewModel: UserViewModel by viewModels()
-    private val themeManager = ThemeManager()
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            ProjetoTheme(darkTheme = themeManager.isDarkTheme) {
+            ProjetoTheme(darkTheme = true) {
                 val loginState by userViewModel.loginState.collectAsState()
                 val isLoggedIn = loginState is LoginState.Success
 
                 if (isLoggedIn) {
                     MainScreen(
-                        themeManager = themeManager,
                         onLogout = {
                             userViewModel.logout()
                         }
