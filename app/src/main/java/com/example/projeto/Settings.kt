@@ -95,7 +95,7 @@ fun SettingsContent(navController: NavController, themeManager: ThemeManager, on
                 title = "Tema Escuro",
                 icon = Icons.Default.Visibility,
                 checked = themeManager.isDarkTheme,
-                onCheckedChange = { themeManager.toggleTheme() }
+                onCheckedChange = { themeManager.setDarkTheme(it) }
             )
         }
 

@@ -10,10 +10,10 @@ class ThemeManager : ViewModel() {
         private set
     
     fun toggleTheme() {
-        enableDarkTheme = !isDarkTheme
+        isDarkTheme = !isDarkTheme
     }
     
-    fun enableDarkTheme(isDark: Boolean) {
-        enableDarkTheme = isDark
+    fun setDarkTheme(isDark: Boolean) {
+        isDarkTheme = isDark
     }
 }

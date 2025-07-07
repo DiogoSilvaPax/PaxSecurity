@@ -50,7 +50,6 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    implementation(libs.ads.mobile.sdk)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -58,12 +57,12 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-    implementation("androidx.compose.material:material-icons-extended")
-    implementation("androidx.compose.foundation:foundation:1.4.3") // ou versão mais recente
-    implementation("androidx.compose.material3:material3:1.1.1")
-            implementation("io.coil-kt:coil-compose:2.4.0")
-            implementation("io.coil-kt:coil-gif:2.4.0")
-    implementation ("androidx.navigation:navigation-compose:2.7.7")
+    implementation("androidx.compose.material:material-icons-extended:1.7.5")
+    implementation("androidx.compose.foundation:foundation:1.7.5")
+    implementation("androidx.compose.material3:material3:1.3.1")
+    implementation("io.coil-kt:coil-compose:2.7.0")
+    implementation("io.coil-kt:coil-gif:2.7.0")
+    implementation("androidx.navigation:navigation-compose:2.8.4")
     
     // Room Database
     implementation("androidx.room:room-runtime:2.6.1")
@@ -71,9 +70,9 @@ dependencies {
     kapt("androidx.room:room-compiler:2.6.1")
     
     // ViewModel and LiveData
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.7.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.0")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.9.0")
     
     // Coroutines
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
 }

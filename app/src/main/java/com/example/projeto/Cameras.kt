@@ -117,7 +117,7 @@ fun CameraCard(camera: Camera, onClick: (Camera) -> Unit) {
 
     val gifRes = when (camera.location) {
         "Sala" -> R.drawable.sala
-        "Quartito" -> R.drawable.quarto
+        "Quarto" -> R.drawable.quarto
         "Estacionamento" -> R.drawable.estacionamento
         "Cozinha" -> R.drawable.cozinha
         "Quintal" -> R.drawable.quintal
@@ -176,7 +176,7 @@ fun ExpandedCameraView(camera: Camera, onClose: () -> Unit) {
 
     val gifRes = when (camera.location) {
         "Sala" -> R.drawable.sala
-        "Quartito" -> R.drawable.quarto
+        "Quarto" -> R.drawable.quarto
         "Estacionamento" -> R.drawable.estacionamento
         "Cozinha" -> R.drawable.cozinha
         "Quintal" -> R.drawable.quintal
@@ -269,7 +269,7 @@ fun ExpandedCameraView(camera: Camera, onClose: () -> Unit) {
 fun getSampleCameras(): List<Camera> = listOf(
     Camera(1, "Câmara 01", "Porta_Entrada", CameraStatus.ONLINE, "192.168.1.101", true, null, "10:30"),
     Camera(2, "Câmara 02", "Sala", CameraStatus.ONLINE, "192.168.1.102", false, null, "09:45"),
-    Camera(3, "Câmara 03", "Quartito", CameraStatus.ONLINE, "192.168.1.103", false, 15, "08:45"),
+    Camera(3, "Câmara 03", "Quarto", CameraStatus.ONLINE, "192.168.1.103", false, 15, "08:45"),
     Camera(4, "Câmara 04", "Cozinha", CameraStatus.OFFLINE, "192.168.1.104", false, null, "07:20"),
     Camera(5, "Câmara 05", "Quintal", CameraStatus.ONLINE, "192.168.1.105", true, 85, "07:15"),
     Camera(6, "Câmara 06", "Estacionamento", CameraStatus.MAINTENANCE, "192.168.1.106", false, null, "06:30")
