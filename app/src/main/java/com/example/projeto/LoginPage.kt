@@ -23,6 +23,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -139,7 +140,7 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(32.dp))
 
         Button(
-            onClick = { 
+            onClick = {
                 if (username.isNotEmpty() && password.isNotEmpty()) {
                     userViewModel.login(username, password)
                 } else {
@@ -150,8 +151,11 @@ fun LoginScreen(
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
         ) {
             if (loginState is LoginState.Loading) {
-                CircularProgressIndicator(color = Color.White, modifier = Modifier.size(16.dp))
+                CircularProgressIndicator(
                     color = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.size(16.dp)
+                )
+            } else {
                 Text("Login", color = MaterialTheme.colorScheme.onPrimary)
             }
         }

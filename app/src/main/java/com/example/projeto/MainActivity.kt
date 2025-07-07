@@ -1,6 +1,5 @@
 package com.example.projeto
 
-import NotificationsContent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -25,20 +24,18 @@ import com.example.projeto.ui.theme.ThemeManager
 
 
 class MainActivity : ComponentActivity() {
+    private val themeManager = ThemeManager()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MainScreen()
-        }
-        setContent {
             MaterialTheme {
-                Surface(color = Color.DarkGray) {
-                    CameraContent() // ← aqui está o nome correto
-                }
+                MainScreen(themeManager = themeManager)
             }
         }
     }
 }
+
 
 @Composable
 fun MainScreen(themeManager: ThemeManager, onLogout: () -> Unit = {}) {
