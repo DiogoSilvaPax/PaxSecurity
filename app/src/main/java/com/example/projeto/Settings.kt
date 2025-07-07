@@ -96,7 +96,7 @@ fun SettingsContent(navController: NavController, themeManager: ThemeManager, on
                 icon = Icons.Default.Visibility,
                 checked = themeManager.isDarkTheme,
                 onCheckedChange = { 
-                    themeManager.setDarkTheme(it)
+                    themeManager.DarkTheme(it)
                 }
             )
         }

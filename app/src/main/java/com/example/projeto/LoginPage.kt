@@ -42,6 +42,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.projeto.viewmodel.LoginState
 import com.example.projeto.viewmodel.UserViewModel
 import com.example.projeto.ui.theme.ProjetoTheme
+import com.example.projeto.ui.theme.ThemeManager
 
 class LoginPage : ComponentActivity() {
     private val userViewModel: UserViewModel by viewModels()
@@ -57,7 +58,8 @@ class LoginPage : ComponentActivity() {
                     MainScreen(
                         onLogout = {
                             userViewModel.logout()
-                        }
+                        },
+                        themeManager = ThemeManager()
                     )
                 } else {
                     LoginScreen(

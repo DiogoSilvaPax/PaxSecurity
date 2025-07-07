@@ -37,7 +37,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.projeto.viewmodel.NotificationViewModel
-import com.example.projeto.utils.NotificationMapper
 
 data class Notification(
     val id: Int,
