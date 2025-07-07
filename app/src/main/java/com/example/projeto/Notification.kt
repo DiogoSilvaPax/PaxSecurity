@@ -68,12 +68,12 @@ fun NotificationsContent(paddingValues: PaddingValues) {
                 .padding(top = 75.dp)
                 .fillMaxWidth()
                 .size(50.dp),
-            tint = Color.White
+            tint = MaterialTheme.colorScheme.onBackground
         )
 
         Text(
             text = "Notificações",
-            color = Color.White,
+            color = MaterialTheme.colorScheme.onBackground,
             fontSize = 40.sp,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
@@ -104,7 +104,7 @@ fun NotificationsContent(paddingValues: PaddingValues) {
                 item {
                     Text(
                         text = "Nenhuma notificação disponível",
-                        color = Color.Gray,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(16.dp)
                     )
                 }
@@ -168,20 +168,20 @@ fun NotificationCard(
             ) {
                 Text(
                     text = notification.title,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
                     text = notification.message,
-                    color = Color.Gray,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 14.sp
                 )
             }
 
             Text(
                 text = notification.time,
-                color = Color.Gray,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = 12.sp
             )
         }

@@ -74,12 +74,12 @@ fun CameraContent(paddingValues: PaddingValues = PaddingValues()) {
                 .padding(top = 75.dp)
                 .fillMaxWidth()
                 .size(35.dp),
-            tint = Color.White
+            tint = MaterialTheme.colorScheme.onBackground
         )
 
         Text(
             text = "Câmaras",
-            color = Color.White,
+            color = MaterialTheme.colorScheme.onBackground,
             fontSize = 40.sp,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
@@ -159,7 +159,7 @@ fun CameraCard(camera: Camera, onClick: (Camera) -> Unit) {
 
             Text(
                 text = camera.name,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold,
                 fontSize = 14.sp,
                 modifier = Modifier
@@ -197,7 +197,7 @@ fun ExpandedCameraView(camera: Camera, onClose: () -> Unit) {
         ) {
             Text(
                 text = camera.name,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onBackground,
                 fontSize = 45.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
@@ -243,7 +243,7 @@ fun ExpandedCameraView(camera: Camera, onClose: () -> Unit) {
                             append("\n🔋 Bateria: $it%")
                         }
                     },
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onBackground,
                     fontSize = 17.sp,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(12.dp)
@@ -258,7 +258,7 @@ fun ExpandedCameraView(camera: Camera, onClose: () -> Unit) {
             Icon(
                 imageVector = Icons.Default.Close,
                 contentDescription = "Fechar",
-                tint = Color.White
+                tint = MaterialTheme.colorScheme.onBackground
             )
         }
     }
