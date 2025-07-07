@@ -36,6 +36,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.projeto.viewmodel.LoginState
 import com.example.projeto.viewmodel.UserViewModel
 
@@ -44,44 +45,38 @@ class LoginPage : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             var isLoggedIn by remember { mutableStateOf(false) }
-            val userViewModel: UserViewModel by viewModels()
 
             if (isLoggedIn) {
                 MainScreen()
             } else {
-                LoginScreen { username, password ->
-                    // Simple authentication check
-                    if (username == "" && password == "") {
-                        isLoggedIn = true
-                    } else {
-                        userViewModel.login(username, password)
+                LoginScreen(
+                    onLoginSuccess = { isLoggedIn = true },
+                    onLogin = { username, password ->
+                        // Simple authentication check for empty credentials
+                        if (username == "" && password == "") {
+                            isLoggedIn = true
+                        }
                     }
-                }
+                )
             }
         }
     }
 }
 
 @Composable
-fun LoginScreen(onLogin: (String, String) -> Unit) {
-    val userViewModel: UserViewModel by viewModels()
+fun LoginScreen(
+    onLoginSuccess: () -> Unit = {},
+    onLogin: (String, String) -> Unit
+) {
+    val userViewModel: UserViewModel = viewModel()
     val loginState by userViewModel.loginState.collectAsState()
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var isLoggedIn by remember { mutableStateOf(false) }
     
     LaunchedEffect(loginState) {
-        when (loginState) {
-            is LoginState.Success -> {
-                isLoggedIn = true
-            }
-            else -> {}
+        if (loginState is LoginState.Success) {
+            onLoginSuccess()
         }
-    }
-    
-    if (isLoggedIn) {
-        MainScreen()
-        return
     }
 
     Column(
@@ -155,13 +150,16 @@ fun LoginScreen(onLogin: (String, String) -> Unit) {
             }
         }
         
-        if (loginState is LoginState.Error) {
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = loginState.message,
-                color = Color.Red
-            )
+        // Handle error state properly
+        when (val currentState = loginState) {
+            is LoginState.Error -> {
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = currentState.message,
+                    color = Color.Red
+                )
+            }
+            else -> {}
         }
     }
 }
-
