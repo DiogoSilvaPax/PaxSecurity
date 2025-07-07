@@ -21,9 +21,8 @@ import com.example.projeto.viewmodel.UserViewModel
 import android.app.Activity
 
 @Composable
-fun Logout(navController: NavController) {
+fun Logout(navController: NavController, onLogout: () -> Unit = {}) {
     val userViewModel: UserViewModel = viewModel()
-    val context = LocalContext.current
     var showConfirmDialog by remember { mutableStateOf(false) }
     
     if (showConfirmDialog) {
@@ -34,9 +33,8 @@ fun Logout(navController: NavController) {
             confirmButton = {
                 TextButton(
                     onClick = {
-                        userViewModel.logout()
                         showConfirmDialog = false
-                        (context as? Activity)?.finish()
+                        onLogout()
                     }
                 ) {
                     Text("Sim")

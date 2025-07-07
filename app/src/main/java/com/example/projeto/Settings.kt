@@ -23,21 +23,21 @@ import androidx.navigation.compose.rememberNavController
 
 // --- NAVIGATION ---
 @Composable
-fun SettingsPage() {
+fun SettingsPage(onLogout: () -> Unit = {}) {
     val navController = rememberNavController()
 
     NavHost(navController, startDestination = "settings") {
-        composable("settings") { SettingsContent(navController) }
+        composable("settings") { SettingsContent(navController, onLogout) }
         composable("change_password") { ChangePassword(navController) }
         composable("change_email") { ChangeEmail(navController) }
-        composable("logout") { Logout(navController) }
+        composable("logout") { Logout(navController, onLogout) }
         composable("support") { Support(navController) }
     }
 }
 
 // --- SETTINGS SCREEN ---
 @Composable
-fun SettingsContent(navController: NavController) {
+fun SettingsContent(navController: NavController, onLogout: () -> Unit = {}) {
     var notificationsEnabled by remember { mutableStateOf(false) }
     var darkThemeEnabled by remember { mutableStateOf(false) }
 

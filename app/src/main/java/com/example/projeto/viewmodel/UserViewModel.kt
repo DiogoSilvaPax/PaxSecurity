@@ -49,6 +49,10 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         _loginState.value = LoginState.Idle
     }
     
+    fun setLoggedIn() {
+        _loginState.value = LoginState.Success
+    }
+    
     fun updateEmail(newEmail: String) {
         viewModelScope.launch {
             try {

@@ -40,7 +40,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainScreen() {
+fun MainScreen(onLogout: () -> Unit = {}) {
     var selectedTab by remember { mutableStateOf(0) }
     val navController = rememberNavController()
 
@@ -90,7 +90,7 @@ fun MainScreen() {
         when (selectedTab) {
             0 -> CameraContent(paddingValues = paddingValues)
             1 -> NotificationsContent(paddingValues = paddingValues)
-            2 -> SettingsPage()
+            2 -> SettingsPage(onLogout = onLogout)
         }
     }
 }

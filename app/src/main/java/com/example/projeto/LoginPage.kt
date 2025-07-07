@@ -41,20 +41,27 @@ import com.example.projeto.viewmodel.LoginState
 import com.example.projeto.viewmodel.UserViewModel
 
 class LoginPage : ComponentActivity() {
+    private val userViewModel: UserViewModel by viewModels()
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            var isLoggedIn by remember { mutableStateOf(false) }
+            val loginState by userViewModel.loginState.collectAsState()
+            val isLoggedIn = loginState is LoginState.Success
 
             if (isLoggedIn) {
-                MainScreen()
+                MainScreen(
+                    onLogout = {
+                        userViewModel.logout()
+                    }
+                )
             } else {
                 LoginScreen(
-                    onLoginSuccess = { isLoggedIn = true },
+                    userViewModel = userViewModel,
                     onLogin = { username, password ->
                         // Simple authentication check for empty credentials
                         if (username == "" && password == "") {
-                            isLoggedIn = true
+                            userViewModel.setLoggedIn()
                         }
                     }
                 )
@@ -65,19 +72,12 @@ class LoginPage : ComponentActivity() {
 
 @Composable
 fun LoginScreen(
-    onLoginSuccess: () -> Unit = {},
+    userViewModel: UserViewModel,
     onLogin: (String, String) -> Unit
 ) {
-    val userViewModel: UserViewModel = viewModel()
     val loginState by userViewModel.loginState.collectAsState()
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    
-    LaunchedEffect(loginState) {
-        if (loginState is LoginState.Success) {
-            onLoginSuccess()
-        }
-    }
 
     Column(
         modifier = Modifier
