@@ -1,43 +1,83 @@
 package com.example.projeto
 
-import android.provider.SettingsSlicesContract
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Logout
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.SupportAgent
-import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 
+// --- NAVIGATION ---
 @Composable
-fun SettingsContent(paddingValues: PaddingValues) {
+fun SettingsPage() {
+    val navController = rememberNavController()
+
+    NavHost(navController, startDestination = "settings") {
+        composable("settings") { SettingsContent(navController) }
+        composable("change_password") { ChangePassword(navController) }
+        composable("change_email") { ChangeEmail(navController) }
+        composable("logout") { Logout(navController) }
+        composable("support") { Support(navController) }
+    }
+}
+
+// --- SETTINGS SCREEN ---
+@Composable
+fun SettingsContent(navController: NavController) {
     var notificationsEnabled by remember { mutableStateOf(false) }
     var darkThemeEnabled by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
+        Icon(
+            imageVector = Icons.Default.Settings,
+            contentDescription = "definições",
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 75.dp)
+                .size(50.dp),
+            tint = Color.White
+        )
+
         Text(
             text = "Definições",
-            style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.padding(bottom = 16.dp)
+            color = Color.White,
+            fontSize = 40.sp,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 40.dp)
         )
 
         SettingsSection(title = "Conta") {
-            SettingsItem("Alterar palavra-passe", Icons.Default.Lock)
-            SettingsItem("Alterar email", Icons.Default.Email)
-            SettingsItem("Terminar Sessão", Icons.Default.Logout)
+            SettingsItem("Alterar palavra-passe", Icons.Default.Lock) {
+                navController.navigate("change_password")
+            }
+            SettingsItem("Alterar email", Icons.Default.Email) {
+                navController.navigate("change_email")
+            }
+            SettingsItem("Terminar Sessão", Icons.Default.Logout) {
+                navController.navigate("logout")
+            }
         }
 
         SettingsSection(title = "Notificações") {
@@ -60,11 +100,14 @@ fun SettingsContent(paddingValues: PaddingValues) {
 
         SettingsSection(title = "Sobre") {
             SettingsItem("Versão 1.0.0", Icons.Default.Settings, enabled = false)
-            SettingsItem("Contactar Suporte", Icons.Default.SupportAgent)
+            SettingsItem("Contactar Suporte", Icons.Default.SupportAgent) {
+                navController.navigate("support")
+            }
         }
     }
 }
 
+// --- COMPONENTES ---
 @Composable
 fun SettingsSection(title: String, content: @Composable ColumnScope.() -> Unit) {
     Card(
@@ -75,23 +118,20 @@ fun SettingsSection(title: String, content: @Composable ColumnScope.() -> Unit) 
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
+            Text(text = title, style = MaterialTheme.typography.titleMedium)
             content()
         }
     }
 }
 
 @Composable
-fun SettingsItem(title: String, icon: ImageVector, enabled: Boolean = true) {
+fun SettingsItem(title: String, icon: ImageVector, enabled: Boolean = true, onClick: () -> Unit = {}) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
+            .clickable(enabled = enabled) { onClick() }
     ) {
         Icon(icon, contentDescription = null)
         Spacer(modifier = Modifier.width(16.dp))

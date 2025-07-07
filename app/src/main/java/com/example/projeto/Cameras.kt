@@ -1,24 +1,38 @@
 package com.example.projeto
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.times
+import coil.compose.AsyncImage
+import coil.decode.GifDecoder
+import coil.request.ImageRequest
+import coil.ImageLoader
 
-// Data class for individual camera
+// ENUM PARA ESTADO DA CÂMARA
+enum class CameraStatus {
+    ONLINE, OFFLINE, MAINTENANCE, ERROR
+}
+
+// DADOS DE UMA CÂMARA
 data class Camera(
     val id: Int,
     val name: String,
@@ -26,14 +40,33 @@ data class Camera(
     val status: CameraStatus,
     val ipAddress: String,
     val isRecording: Boolean = false,
-    val batteryLevel: Int? = null, // null for wired cameras
+    val batteryLevel: Int? = null,
     val lastActivity: String
 )
+
 @Composable
-fun CameraContent(paddingValues: PaddingValues) {
+fun CameraContent(paddingValues: PaddingValues = PaddingValues()) {
+    val cameras = getSampleCameras()
+    var selectedCamera by remember { mutableStateOf<Camera?>(null) }
 
-    Column(modifier = Modifier.padding(paddingValues)) {
+    selectedCamera?.let { camera ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.95f)),
+            contentAlignment = Alignment.Center
+        ) {
+            ExpandedCameraView(camera = camera, onClose = { selectedCamera = null })
+        }
+        return
+    }
 
+    Column(modifier = Modifier
+        .padding(paddingValues)
+        .fillMaxSize()
+        .verticalScroll(rememberScrollState())
+        .padding(horizontal = 16.dp)
+    ) {
         Icon(
             painter = painterResource(R.drawable.videocam),
             contentDescription = "camera",
@@ -42,9 +75,7 @@ fun CameraContent(paddingValues: PaddingValues) {
                 .fillMaxWidth()
                 .size(35.dp),
             tint = Color.White
-
         )
-
 
         Text(
             text = "Câmaras",
@@ -54,208 +85,192 @@ fun CameraContent(paddingValues: PaddingValues) {
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 40.dp)
-
+                .padding(top = 40.dp, bottom = 100.dp)
         )
-
     }
 
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues)
+            .padding(horizontal = 16.dp)
+            .padding(top = 150.dp)
+    ) {
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            modifier = Modifier
+                .fillMaxSize()
+                .height((cameras.size / 2 + 1) * 270.dp),
+            contentPadding = PaddingValues(8.dp)
 
-
-
-
-
-
-
-
-    // Obtenha a lista de câmeras
-    val cameras = Cameras().getAllCameras()
-
-    // Verifique se há câmeras para exibir
-    if (cameras.isNotEmpty()) {
-        Column(modifier = Modifier.padding(paddingValues)) {
-            cameras.forEach { camera ->
-                Text(text = "Nome: ${camera.name}, Localização: ${camera.location}, Status: ${camera.status}")
+        ) {
+            items(cameras) { camera ->
+                CameraCard(camera = camera, onClick = { selectedCamera = it })
             }
         }
-    } else {
-        // Mensagem caso não haja câmeras
-        Text(text = "Nenhuma câmera disponível", modifier = Modifier.padding(paddingValues))
     }
 }
 
-// Enum for camera status
-enum class CameraStatus {
-    ONLINE, OFFLINE, MAINTENANCE, ERROR
-}
+@Composable
+fun CameraCard(camera: Camera, onClick: (Camera) -> Unit) {
+    val context = LocalContext.current
 
-// Main Cameras class to manage all cameras
-class Cameras {
-    
-    // List of all cameras in the system
-    private val cameraList = mutableListOf<Camera>()
-    
-    init {
-        // Initialize with sample cameras
-        loadSampleCameras()
+    val gifRes = when (camera.location) {
+        "Sala" -> R.drawable.sala
+        "Quartito" -> R.drawable.quarto
+        "Estacionamento" -> R.drawable.estacionamento
+        "Cozinha" -> R.drawable.cozinha
+        "Quintal" -> R.drawable.quintal
+        "Porta_Entrada" -> R.drawable.cao_entrada
+        else -> R.drawable.quarto
     }
-    
-    // Get all cameras
-    fun getAllCameras(): List<Camera> {
-        return cameraList.toList()
-    }
-    
-    // Get camera by ID
-    fun getCameraById(id: Int): Camera? {
-        return cameraList.find { it.id == id }
-    }
-    
-    // Get cameras by status
-    fun getCamerasByStatus(status: CameraStatus): List<Camera> {
-        return cameraList.filter { it.status == status }
-    }
-    
-    // Get online cameras count
-    fun getOnlineCamerasCount(): Int {
-        return cameraList.count { it.status == CameraStatus.ONLINE }
-    }
-    
-    // Get total cameras count
-    fun getTotalCamerasCount(): Int {
-        return cameraList.size
-    }
-    
-    // Add new camera
-    fun addCamera(camera: Camera): Boolean {
-        return if (cameraList.none { it.id == camera.id }) {
-            cameraList.add(camera)
-            true
-        } else {
-            false // Camera with this ID already exists
+
+    val imageLoader = ImageLoader.Builder(context)
+        .components {
+            add(GifDecoder.Factory())
         }
-    }
-    
-    // Remove camera
-    fun removeCamera(id: Int): Boolean {
-        return cameraList.removeIf { it.id == id }
-    }
-    
-    // Update camera status
-    fun updateCameraStatus(id: Int, status: CameraStatus): Boolean {
-        val camera = getCameraById(id)
-        return if (camera != null) {
-            val index = cameraList.indexOf(camera)
-            cameraList[index] = camera.copy(status = status)
-            true
-        } else {
-            false
-        }
-    }
-    
-    // Start recording on camera
-    fun startRecording(id: Int): Boolean {
-        val camera = getCameraById(id)
-        return if (camera != null && camera.status == CameraStatus.ONLINE) {
-            val index = cameraList.indexOf(camera)
-            cameraList[index] = camera.copy(isRecording = true)
-            true
-        } else {
-            false
-        }
-    }
-    
-    // Stop recording on camera
-    fun stopRecording(id: Int): Boolean {
-        val camera = getCameraById(id)
-        return if (camera != null) {
-            val index = cameraList.indexOf(camera)
-            cameraList[index] = camera.copy(isRecording = false)
-            true
-        } else {
-            false
-        }
-    }
-    
-    // Get cameras with low battery (below 20%)
-    fun getLowBatteryCameras(): List<Camera> {
-        return cameraList.filter { 
-            it.batteryLevel != null && it.batteryLevel < 20 
-        }
-    }
-    
-    // Check if any camera is recording
-    fun isAnyRecording(): Boolean {
-        return cameraList.any { it.isRecording }
-    }
-    
-    // Get recording cameras
-    fun getRecordingCameras(): List<Camera> {
-        return cameraList.filter { it.isRecording }
-    }
-    
-    // Private function to load sample cameras
-    private fun loadSampleCameras() {
-        cameraList.addAll(listOf(
-            Camera(
-                id = 1,
-                name = "Câmara 01",
-                location = "Entrada Principal",
-                status = CameraStatus.ONLINE,
-                ipAddress = "192.168.1.101",
-                isRecording = true,
-                batteryLevel = null,
-                lastActivity = "10:30"
-            ),
-            Camera(
-                id = 2,
-                name = "Câmara 02",
-                location = "Sala de Estar",
-                status = CameraStatus.ONLINE,
-                ipAddress = "192.168.1.102",
-                isRecording = false,
-                batteryLevel = null,
-                lastActivity = "09:45"
-            ),
-            Camera(
-                id = 3,
-                name = "Câmara 03",
-                location = "Jardim",
-                status = CameraStatus.ONLINE,
-                ipAddress = "192.168.1.103",
-                isRecording = false,
-                batteryLevel = 15,
-                lastActivity = "08:45"
-            ),
-            Camera(
-                id = 4,
-                name = "Câmara 04",
-                location = "Cozinha",
-                status = CameraStatus.OFFLINE,
-                ipAddress = "192.168.1.104",
-                isRecording = false,
-                batteryLevel = null,
-                lastActivity = "07:20"
-            ),
-            Camera(
-                id = 5,
-                name = "Câmara 05",
-                location = "Garagem",
-                status = CameraStatus.ONLINE,
-                ipAddress = "192.168.1.105",
-                isRecording = true,
-                batteryLevel = 85,
-                lastActivity = "07:15"
-            ),
-            Camera(
-                id = 6,
-                name = "Câmara 06",
-                location = "Quarto Principal",
-                status = CameraStatus.MAINTENANCE,
-                ipAddress = "192.168.1.106",
-                isRecording = false,
-                batteryLevel = null,
-                lastActivity = "06:30"
+        .build()
+
+    Card(
+        modifier = Modifier
+            .padding(8.dp)
+            .fillMaxWidth()
+            .height(180.dp)
+            .clickable { onClick(camera) }
+            .padding(top = 50.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.Black),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            AsyncImage(
+                model = ImageRequest.Builder(context)
+                    .data(gifRes)
+                    .crossfade(true)
+                    .build(),
+                imageLoader = imageLoader,
+                contentDescription = "Vídeo da ${camera.name}",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(8.dp)
             )
-        ))
+
+            Text(
+                text = camera.name,
+                color = Color.White,
+                fontWeight = FontWeight.Bold,
+                fontSize = 14.sp,
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(bottom = 8.dp)
+            )
+        }
     }
 }
+
+@Composable
+fun ExpandedCameraView(camera: Camera, onClose: () -> Unit) {
+    val context = LocalContext.current
+
+    val gifRes = when (camera.location) {
+        "Sala" -> R.drawable.sala
+        "Quartito" -> R.drawable.quarto
+        "Estacionamento" -> R.drawable.estacionamento
+        "Cozinha" -> R.drawable.cozinha
+        "Quintal" -> R.drawable.quintal
+        "Porta_Entrada" -> R.drawable.cao_entrada
+        else -> R.drawable.quarto
+    }
+
+    val imageLoader = ImageLoader.Builder(context)
+        .components { add(GifDecoder.Factory()) }
+        .build()
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .align(Alignment.Center)
+                .padding(16.dp)
+        ) {
+            Text(
+                text = camera.name,
+                color = Color.White,
+                fontSize = 45.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .padding(bottom = 30.dp)
+            )
+
+            Surface(
+                shape = MaterialTheme.shapes.medium,
+                tonalElevation = 8.dp,
+                shadowElevation = 8.dp,
+                color = Color.Black.copy(alpha = 0.2f), // leve fundo escuro
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(1.6f)
+            ) {
+                AsyncImage(
+                    model = ImageRequest.Builder(context).data(gifRes).build(),
+                    imageLoader = imageLoader,
+                    contentDescription = "Vídeo expandido de ${camera.name}",
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(4.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Surface(
+                shape = MaterialTheme.shapes.medium,
+                color = Color.Black.copy(alpha = 0.5f),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp)
+            ) {
+                Text(
+                    text = buildString {
+                        append("📍 Localização: ${camera.location}\n")
+                        append("\n")
+                        append("🌐 IP: ${camera.ipAddress}\n")
+                        append("\n") // pequeno espaçamento visual
+                        append("🔧 Estado: ${camera.status}\n")
+                        camera.batteryLevel?.let {
+                            append("\n🔋 Bateria: $it%")
+                        }
+                    },
+                    color = Color.White,
+                    fontSize = 17.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(12.dp)
+                )
+            }
+        }
+
+        IconButton(
+            onClick = onClose,
+            modifier = Modifier.align(Alignment.TopEnd).padding(16.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Close,
+                contentDescription = "Fechar",
+                tint = Color.White
+            )
+        }
+    }
+}
+
+
+
+fun getSampleCameras(): List<Camera> = listOf(
+    Camera(1, "Câmara 01", "Porta_Entrada", CameraStatus.ONLINE, "192.168.1.101", true, null, "10:30"),
+    Camera(2, "Câmara 02", "Sala", CameraStatus.ONLINE, "192.168.1.102", false, null, "09:45"),
+    Camera(3, "Câmara 03", "Quartito", CameraStatus.ONLINE, "192.168.1.103", false, 15, "08:45"),
+    Camera(4, "Câmara 04", "Cozinha", CameraStatus.OFFLINE, "192.168.1.104", false, null, "07:20"),
+    Camera(5, "Câmara 05", "Quintal", CameraStatus.ONLINE, "192.168.1.105", true, 85, "07:15"),
+    Camera(6, "Câmara 06", "Estacionamento", CameraStatus.MAINTENANCE, "192.168.1.106", false, null, "06:30")
+)

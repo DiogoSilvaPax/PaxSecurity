@@ -4,13 +4,8 @@ import NotificationsContent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -24,7 +19,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 
 
 class MainActivity : ComponentActivity() {
@@ -33,12 +29,20 @@ class MainActivity : ComponentActivity() {
         setContent {
             MainScreen()
         }
+        setContent {
+            MaterialTheme {
+                Surface(color = Color.DarkGray) {
+                    CameraContent() // ← aqui está o nome correto
+                }
+            }
+        }
     }
 }
 
 @Composable
 fun MainScreen() {
     var selectedTab by remember { mutableStateOf(0) }
+    val navController = rememberNavController()
 
     Scaffold(
         bottomBar = {
@@ -86,7 +90,7 @@ fun MainScreen() {
         when (selectedTab) {
             0 -> CameraContent(paddingValues = paddingValues)
             1 -> NotificationsContent(paddingValues = paddingValues)
-            2 -> SettingsContent(paddingValues = paddingValues)
+            2 -> SettingsPage()
         }
     }
 }

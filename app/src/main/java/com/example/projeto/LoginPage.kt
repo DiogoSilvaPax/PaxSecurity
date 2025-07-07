@@ -74,7 +74,7 @@ fun LoginScreen(onLogin: (String, String) -> Unit) {
             modifier = Modifier.size(180.dp)
         )
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(150.dp))
 
         OutlinedTextField(
             value = username,
@@ -92,7 +92,7 @@ fun LoginScreen(onLogin: (String, String) -> Unit) {
                 unfocusedLabelColor = Color.Gray
             )
         )
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(15.dp))
 
         OutlinedTextField(
             value = password,
