@@ -25,6 +25,7 @@ class NotificationViewModel(application: Application) : AndroidViewModel(applica
         val database = AppDatabase.getDatabase(application)
         repository = NotificationRepository(database.notificationDao())
         loadNotifications()
+        loadSampleNotifications()
     }
     
     private fun loadNotifications() {
@@ -38,6 +39,24 @@ class NotificationViewModel(application: Application) : AndroidViewModel(applica
             // Assuming client ID 1 for demo purposes
             repository.getUnreadCount(1).collect { count ->
                 _unreadCount.value = count
+            }
+        }
+    }
+    
+    private fun loadSampleNotifications() {
+        viewModelScope.launch {
+            // Create some sample notifications if database is empty
+            val sampleNotifications = listOf(
+                Triple("Movimento Detectado", "Câmara 01 - Entrada principal", "movement"),
+                Triple("Sistema Online", "Todas as câmaras conectadas", "system"),
+                Triple("Bateria Baixa", "Câmara 03 - Jardim", "battery"),
+                Triple("Acesso Negado", "Tentativa de login falhada", "access"),
+                Triple("Manutenção", "Sistema será atualizado às 02:00", "maintenance"),
+                Triple("Movimento Detectado", "Câmara 05 - Garagem", "movement")
+            )
+            
+            sampleNotifications.forEach { (title, message, type) ->
+                createNotification(1, message, type)
             }
         }
     }

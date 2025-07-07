@@ -1,3 +1,5 @@
+package com.example.projeto
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -23,18 +25,17 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.projeto.R
-import com.example.projeto.viewmodel.NotificationViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.compose.runtime.collectAsState
+import com.example.projeto.viewmodel.NotificationViewModel
 import com.example.projeto.utils.NotificationMapper
 
 data class Notification(
@@ -62,15 +63,13 @@ fun NotificationsContent(paddingValues: PaddingValues) {
 
         Icon(
             Icons.Default.Notifications,
-            contentDescription = "camera",
+            contentDescription = "notifications",
             modifier = Modifier
                 .padding(top = 75.dp)
                 .fillMaxWidth()
                 .size(50.dp),
             tint = Color.White
-
         )
-
 
         Text(
             text = "Notificações",
@@ -81,9 +80,7 @@ fun NotificationsContent(paddingValues: PaddingValues) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 40.dp)
-
         )
-
     }
 
     Column(
@@ -96,7 +93,7 @@ fun NotificationsContent(paddingValues: PaddingValues) {
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(bottom = 250.dp)
         ) {
-
+            // Empty row for spacing
         }
 
         LazyColumn(
