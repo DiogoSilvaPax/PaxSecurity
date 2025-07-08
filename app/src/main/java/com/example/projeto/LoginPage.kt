@@ -94,12 +94,13 @@ fun LoginScreen(
         verticalArrangement = Arrangement.Center
     ) {
         Image(
-            painter = painterResource(id = R.drawable.logotipopreto),
+            painter = painterResource(id = R.drawable.logobranco),
             contentDescription = "Logo",
-            modifier = Modifier.size(180.dp)
+            modifier = Modifier
+                .size(300.dp) // Aumenta o tamanho
         )
 
-        Spacer(modifier = Modifier.height(150.dp))
+        Spacer(modifier = Modifier.height(40.dp))
 
         OutlinedTextField(
             value = username,

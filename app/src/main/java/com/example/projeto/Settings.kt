@@ -194,16 +194,16 @@ fun SimpleSwitchItem(
             tint = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier.size(24.dp)
         )
-        
+
         Spacer(modifier = Modifier.width(20.dp))
-        
+
         Text(
             text = title,
             style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp),
             modifier = Modifier.weight(1f),
             color = MaterialTheme.colorScheme.onBackground
         )
-        
+
         Switch(
             checked = checked,
             onCheckedChange = onCheckedChange,
@@ -215,3 +215,4 @@ fun SimpleSwitchItem(
             )
         )
     }
+}
