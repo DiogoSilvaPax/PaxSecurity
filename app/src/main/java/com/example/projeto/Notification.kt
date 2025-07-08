@@ -15,19 +15,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,65 +30,24 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.projeto.viewmodel.NotificationViewModel
-import com.example.projeto.viewmodel.UserViewModel
-import java.text.SimpleDateFormat
-import java.util.Locale
 
-data class Notification(
+data class SimpleNotification(
     val id: Int,
-    val title: String,
     val message: String,
-    val time: String,
     val date: String,
-    val type: NotificationType
+    val time: String
 )
-
-enum class NotificationType {
-    ALERT, WARNING, INFO
-}
 
 @Composable
 fun NotificationsContent(paddingValues: PaddingValues) {
-    val notificationViewModel: NotificationViewModel = viewModel()
-    val userViewModel: UserViewModel = viewModel()
-    val currentUser by userViewModel.currentUser.collectAsState()
-    val notificationsFromDb by notificationViewModel.notifications.collectAsState()
-
-    // Initialize notifications for current user when component loads
-    LaunchedEffect(currentUser) {
-        currentUser?.let { user ->
-            notificationViewModel.initializeNotificationsForUser(user.userId, user.username)
-        }
-    }
-
-    // Convert database notifications to UI notifications
-    val notifications = notificationsFromDb.map { entity ->
-        val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
-        val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
-        val dateOnlyFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-        
-        Notification(
-            id = entity.notificationId,
-            title = when (entity.type.lowercase()) {
-                "movement" -> "Movimento Detectado"
-                "connection" -> "Ligação Perdida"
-                "system" -> "Sistema"
-                "battery" -> "Bateria"
-                "access" -> "Acesso"
-                "maintenance" -> "Manutenção"
-                else -> "Notificação"
-            },
-            message = entity.message,
-            time = timeFormat.format(entity.notificationDate),
-            date = dateOnlyFormat.format(entity.notificationDate),
-            type = when (entity.type.lowercase()) {
-                "movement", "access" -> NotificationType.ALERT
-                "connection", "battery", "maintenance" -> NotificationType.WARNING
-                "system" -> NotificationType.INFO
-                else -> NotificationType.INFO
-            }
+    // Sample notifications - static for now to avoid crashes
+    val notifications = remember {
+        listOf(
+            SimpleNotification(1, "Cam 05 - Movimento Detectado", "29/05/2025", "18:45"),
+            SimpleNotification(2, "Cam 03 - Ligação Perdida", "25/05/2025", "09:32"),
+            SimpleNotification(3, "Cam 01 - Movimento Detectado", "22/03/2025", "15:37"),
+            SimpleNotification(4, "Sistema de segurança ativado", "20/03/2025", "08:15"),
+            SimpleNotification(5, "Cam 02 - Bateria baixa", "18/03/2025", "14:22")
         )
     }
 
@@ -137,41 +91,20 @@ fun NotificationsContent(paddingValues: PaddingValues) {
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            if (notifications.isEmpty()) {
-                item {
-                    Text(
-                        text = "Nenhuma notificação disponível",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(16.dp)
-                    )
-                }
-            }
             items(notifications) { notification ->
-                NotificationCard(
-                    notification = notification,
-                    onMarkAsRead = { notificationViewModel.markAsRead(notification.id) }
-                )
+                SimpleNotificationCard(notification = notification)
             }
         }
     }
 }
 
 @Composable
-fun NotificationCard(
-    notification: Notification,
-    onMarkAsRead: () -> Unit = {}
-) {
-    val backgroundColor = when (notification.type) {
-        NotificationType.ALERT -> Color(0xFF2D2D2D)
-        NotificationType.WARNING -> Color(0xFF2D2D2D)
-        NotificationType.INFO -> Color(0xFF2D2D2D)
-    }
-
+fun SimpleNotificationCard(notification: SimpleNotification) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onMarkAsRead() },
-        colors = CardDefaults.cardColors(containerColor = backgroundColor),
+            .clickable { /* Handle click */ },
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF2D2D2D)),
         shape = RoundedCornerShape(12.dp)
     ) {
         Column(
@@ -182,7 +115,7 @@ fun NotificationCard(
             // Date and time
             Text(
                 text = "${notification.date} ${notification.time}",
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = Color.White.copy(alpha = 0.7f),
                 fontSize = 12.sp,
                 modifier = Modifier.padding(bottom = 4.dp)
             )
@@ -190,7 +123,7 @@ fun NotificationCard(
             // Message
             Text(
                 text = notification.message,
-                color = MaterialTheme.colorScheme.onSurface,
+                color = Color.White,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium
             )
