@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 import java.util.Date
 import java.util.Calendar
 
@@ -26,12 +27,11 @@ class NotificationViewModel(application: Application) : AndroidViewModel(applica
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
     
+    private var hasCreatedSampleNotifications = false
+    
     init {
         val database = AppDatabase.getDatabase(application)
         repository = NotificationRepository(database.notificationDao())
-        
-        // Load notifications immediately
-        loadNotifications()
     }
     
     fun loadNotifications() {
@@ -39,16 +39,22 @@ class NotificationViewModel(application: Application) : AndroidViewModel(applica
             try {
                 _isLoading.value = true
                 
-                // First create sample notifications
-                createSampleNotifications()
+                // Show loading for 2 seconds for better UX
+                delay(2000)
                 
-                // Then load all notifications
+                // Create sample notifications only once
+                if (!hasCreatedSampleNotifications) {
+                    createSampleNotifications()
+                    hasCreatedSampleNotifications = true
+                }
+                
+                // Load all notifications
                 repository.getAllNotifications().collect { notificationList ->
                     _notifications.value = notificationList.sortedByDescending { it.notificationDate }
+                    _isLoading.value = false
                 }
             } catch (e: Exception) {
                 _notifications.value = emptyList()
-            } finally {
                 _isLoading.value = false
             }
         }
@@ -67,6 +73,16 @@ class NotificationViewModel(application: Application) : AndroidViewModel(applica
     
     private suspend fun createSampleNotifications() {
         try {
+            // Check if notifications already exist
+            val existingNotifications = repository.getAllNotifications()
+            var hasNotifications = false
+            
+            existingNotifications.collect { list ->
+                hasNotifications = list.isNotEmpty()
+            }
+            
+            if (hasNotifications) return
+            
             // Create notifications with different times
             val calendar = Calendar.getInstance()
             

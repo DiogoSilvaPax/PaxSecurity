@@ -139,11 +139,14 @@ fun NotificationsContent(paddingValues: PaddingValues) {
                 verticalArrangement = Arrangement.Center
             ) {
                 CircularProgressIndicator(
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(48.dp)
                 )
+                Spacer(modifier = Modifier.padding(8.dp))
                 Text(
                     text = "A carregar notificações...",
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontSize = 16.sp,
                     modifier = Modifier.padding(top = 16.dp)
                 )
             }
