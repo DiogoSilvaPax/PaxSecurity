@@ -1,7 +1,6 @@
 package com.example.projeto.database
 
 import android.content.Context
-import androidx.lifecycle.lifecycleScope
 import com.example.projeto.database.entities.User
 import com.example.projeto.repository.UserRepository
 import kotlinx.coroutines.CoroutineScope
