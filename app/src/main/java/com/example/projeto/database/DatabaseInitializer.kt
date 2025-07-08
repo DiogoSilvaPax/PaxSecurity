@@ -10,6 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.security.MessageDigest
 import java.util.Date
+import java.util.Calendar
 
 class DatabaseInitializer(private val context: Context) {
     
@@ -40,8 +41,8 @@ class DatabaseInitializer(private val context: Context) {
                 }
                 
                 // Create notifications for each user
-                user1Id?.let { createNotificationsForUser(it.toInt()) }
-                user2Id?.let { createNotificationsForUser(it.toInt()) }
+                user1Id?.let { createNotificationsForUser(it.toInt(), "OsmarG") }
+                user2Id?.let { createNotificationsForUser(it.toInt(), "DiogoS") }
                 
             } catch (e: Exception) {
                 // Handle initialization errors gracefully
@@ -63,26 +64,43 @@ class DatabaseInitializer(private val context: Context) {
         return userRepository.insertUser(user)
     }
     
-    private suspend fun createNotificationsForUser(userId: Int) {
+    private suspend fun createNotificationsForUser(userId: Int, username: String) {
         try {
-            val userNotifications = listOf(
-                Triple("Cam 05 - Movimento Detectado", "movement", "high"),
-                Triple("Cam 03 - Ligação Perdida", "system", "medium"),
-                Triple("Cam 01 - Movimento Detectado", "movement", "high"),
-                Triple("Sistema de segurança ativado", "system", "normal"),
-                Triple("Cam 02 - Bateria baixa", "battery", "medium"),
-                Triple("Acesso autorizado na entrada", "access", "normal"),
-                Triple("Manutenção programada", "maintenance", "low"),
-                Triple("Todas as câmaras online", "system", "normal")
-            )
+            val calendar = Calendar.getInstance()
+            
+            val userNotifications = when (username) {
+                "OsmarG" -> listOf(
+                    Triple("Cam 05 - Movimento Detectado", "movement", "high"),
+                    Triple("Cam 03 - Ligação Perdida", "system", "medium"),
+                    Triple("Cam 01 - Movimento Detectado", "movement", "high"),
+                    Triple("Sistema de segurança ativado", "system", "normal"),
+                    Triple("Cam 02 - Bateria baixa", "battery", "medium"),
+                    Triple("Acesso autorizado na entrada", "access", "normal"),
+                    Triple("Manutenção programada", "maintenance", "low"),
+                    Triple("Todas as câmaras online", "system", "normal")
+                )
+                "DiogoS" -> listOf(
+                    Triple("Cam 04 - Movimento no quintal", "movement", "high"),
+                    Triple("Cam 06 - Conexão instável", "system", "medium"),
+                    Triple("Cam 02 - Movimento na sala", "movement", "high"),
+                    Triple("Backup automático concluído", "system", "normal"),
+                    Triple("Cam 01 - Bateria crítica", "battery", "high"),
+                    Triple("Acesso negado - tentativa suspeita", "access", "high"),
+                    Triple("Atualização de firmware", "maintenance", "normal"),
+                    Triple("Sistema funcionando normalmente", "system", "normal")
+                )
+                else -> emptyList()
+            }
             
             userNotifications.forEachIndexed { index, (message, type, priority) ->
+                calendar.add(Calendar.HOUR, -index)
+                
                 val notification = NotificationEntity(
                     clientId = userId,
                     message = message,
                     type = type,
                     priority = priority,
-                    notificationDate = Date(System.currentTimeMillis() - (index * 3600000L)),
+                    notificationDate = calendar.time,
                     createdAt = Date(),
                     updatedAt = Date(),
                     status = "unread",

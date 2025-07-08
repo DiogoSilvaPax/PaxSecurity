@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -57,8 +58,9 @@ fun NotificationsContent(paddingValues: PaddingValues) {
     val notificationViewModel: NotificationViewModel = viewModel()
     val notificationsFromDb by notificationViewModel.notifications.collectAsState()
     val unreadCount by notificationViewModel.unreadCount.collectAsState()
+    val isLoading by notificationViewModel.isLoading.collectAsState()
 
-    // Initialize notifications when the screen loads
+    // Force reload notifications when screen opens
     LaunchedEffect(Unit) {
         notificationViewModel.loadNotifications()
     }
@@ -80,7 +82,7 @@ fun NotificationsContent(paddingValues: PaddingValues) {
                 time = try {
                     SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(entity.notificationDate)
                 } catch (e: Exception) {
-                    "Data inválida"
+                    "Agora"
                 },
                 type = when (entity.type.lowercase()) {
                     "movement", "access" -> NotificationType.ALERT
@@ -91,7 +93,6 @@ fun NotificationsContent(paddingValues: PaddingValues) {
             )
         }
     } catch (e: Exception) {
-        // Fallback to empty list if there's any error
         emptyList()
     }
 
@@ -131,31 +132,59 @@ fun NotificationsContent(paddingValues: PaddingValues) {
             // Empty row for spacing
         }
 
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            if (notifications.isEmpty()) {
-                item {
-                    Text(
-                        text = "Nenhuma notificação disponível",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(16.dp),
-                        textAlign = TextAlign.Center
-                    )
-                }
-            } else {
-                items(notifications) { notification ->
-                    NotificationCard(
-                        notification = notification,
-                        onMarkAsRead = { 
-                            try {
-                                notificationViewModel.markAsRead(notification.id)
-                            } catch (e: Exception) {
-                                // Handle error silently
-                            }
+        if (isLoading) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    text = "A carregar notificações...",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 16.dp)
+                )
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                if (notifications.isEmpty()) {
+                    item {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "Nenhuma notificação disponível",
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(16.dp),
+                                textAlign = TextAlign.Center
+                            )
+                            Text(
+                                text = "As notificações aparecerão aqui quando houver atividade",
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                fontSize = 12.sp,
+                                textAlign = TextAlign.Center
+                            )
                         }
-                    )
+                    }
+                } else {
+                    items(notifications) { notification ->
+                        NotificationCard(
+                            notification = notification,
+                            onMarkAsRead = { 
+                                try {
+                                    notificationViewModel.markAsRead(notification.id)
+                                } catch (e: Exception) {
+                                    // Handle error silently
+                                }
+                            }
+                        )
+                    }
                 }
             }
         }

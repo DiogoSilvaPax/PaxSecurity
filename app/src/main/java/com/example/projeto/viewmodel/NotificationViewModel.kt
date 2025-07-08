@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.util.Date
+import java.util.Calendar
 
 class NotificationViewModel(application: Application) : AndroidViewModel(application) {
     
@@ -28,6 +29,9 @@ class NotificationViewModel(application: Application) : AndroidViewModel(applica
     init {
         val database = AppDatabase.getDatabase(application)
         repository = NotificationRepository(database.notificationDao())
+        
+        // Load notifications immediately
+        loadNotifications()
     }
     
     fun loadNotifications() {
@@ -35,22 +39,21 @@ class NotificationViewModel(application: Application) : AndroidViewModel(applica
             try {
                 _isLoading.value = true
                 
-                // First, create sample notifications if none exist
-                createSampleNotificationsIfNeeded()
+                // First create sample notifications
+                createSampleNotifications()
                 
                 // Then load all notifications
                 repository.getAllNotifications().collect { notificationList ->
-                    _notifications.value = notificationList
+                    _notifications.value = notificationList.sortedByDescending { it.notificationDate }
                 }
             } catch (e: Exception) {
-                // If there's an error, set empty list to avoid crashes
                 _notifications.value = emptyList()
             } finally {
                 _isLoading.value = false
             }
         }
         
-        // Load unread count separately
+        // Load unread count
         viewModelScope.launch {
             try {
                 repository.getUnreadCount(1).collect { count ->
@@ -62,41 +65,44 @@ class NotificationViewModel(application: Application) : AndroidViewModel(applica
         }
     }
     
-    private suspend fun createSampleNotificationsIfNeeded() {
+    private suspend fun createSampleNotifications() {
         try {
-            // Check if we already have notifications
-            val existingNotifications = repository.getAllNotifications()
+            // Create notifications with different times
+            val calendar = Calendar.getInstance()
             
-            // Create sample notifications for demonstration
             val sampleNotifications = listOf(
                 Triple("Cam 05 - Movimento Detectado", "movement", "high"),
-                Triple("Cam 03 - Ligação Perdida", "system", "medium"),
+                Triple("Cam 03 - Ligação Perdida", "system", "medium"), 
                 Triple("Cam 01 - Movimento Detectado", "movement", "high"),
                 Triple("Sistema de segurança ativado", "system", "normal"),
                 Triple("Cam 02 - Bateria baixa", "battery", "medium"),
                 Triple("Acesso autorizado na entrada", "access", "normal"),
                 Triple("Manutenção programada para amanhã", "maintenance", "low"),
-                Triple("Conexão restabelecida com todas as câmaras", "system", "normal"),
-                Triple("Tentativa de acesso não autorizado", "access", "high"),
-                Triple("Atualização de firmware disponível", "system", "low")
+                Triple("Conexão restabelecida", "system", "normal"),
+                Triple("Tentativa de acesso negado", "access", "high"),
+                Triple("Backup concluído", "system", "low")
             )
             
             sampleNotifications.forEachIndexed { index, (message, type, priority) ->
+                // Create notifications with different timestamps
+                calendar.add(Calendar.HOUR, -index)
+                
                 val notification = NotificationEntity(
-                    clientId = 1, // Default client ID
+                    clientId = 1,
                     message = message,
                     type = type,
                     priority = priority,
-                    notificationDate = Date(System.currentTimeMillis() - (index * 3600000L)), // Spread over hours
+                    notificationDate = calendar.time,
                     createdAt = Date(),
                     updatedAt = Date(),
                     status = "unread",
                     isRead = false
                 )
+                
                 repository.insertNotification(notification)
             }
         } catch (e: Exception) {
-            // If sample creation fails, continue without crashing
+            // Continue without crashing
         }
     }
     
@@ -105,7 +111,7 @@ class NotificationViewModel(application: Application) : AndroidViewModel(applica
             try {
                 repository.markAsRead(notificationId)
             } catch (e: Exception) {
-                // Handle error silently
+                // Handle silently
             }
         }
     }
@@ -115,7 +121,7 @@ class NotificationViewModel(application: Application) : AndroidViewModel(applica
             try {
                 repository.markAllAsReadForClient(clientId)
             } catch (e: Exception) {
-                // Handle error silently
+                // Handle silently
             }
         }
     }
@@ -125,7 +131,7 @@ class NotificationViewModel(application: Application) : AndroidViewModel(applica
             try {
                 repository.createNotification(clientId, message, type, priority)
             } catch (e: Exception) {
-                // Handle error silently
+                // Handle silently
             }
         }
     }
@@ -135,7 +141,7 @@ class NotificationViewModel(application: Application) : AndroidViewModel(applica
             try {
                 repository.deleteNotification(notification)
             } catch (e: Exception) {
-                // Handle error silently
+                // Handle silently
             }
         }
     }
