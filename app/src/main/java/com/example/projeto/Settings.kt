@@ -45,7 +45,6 @@ fun SettingsContent(navController: NavController, themeManager: ThemeManager, on
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
         Icon(
@@ -69,125 +68,150 @@ fun SettingsContent(navController: NavController, themeManager: ThemeManager, on
                 .padding(vertical = 40.dp)
         )
 
-        SettingsSection(title = "Conta") {
-            SettingsItem("Alterar palavra-passe", Icons.Default.Lock) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+        ) {
+            // Conta Section
+            SectionTitle("Conta")
+            SimpleSettingsItem("Alterar palavra-passe", Icons.Default.Person) {
                 navController.navigate("change_password")
             }
-            SettingsItem("Alterar email", Icons.Default.Email) {
+            SimpleSettingsItem("Alterar email", Icons.Default.Email) {
                 navController.navigate("change_email")
             }
-            SettingsItem("Terminar Sessão", Icons.Default.Logout) {
+            SimpleSettingsItem("Terminar Sessão", Icons.Default.Logout) {
                 navController.navigate("logout")
             }
-        }
-
-        SettingsSection(title = "Notificações") {
-            SwitchItem(
+            
+            Spacer(modifier = Modifier.height(32.dp))
+            
+            // Notificações Section
+            SectionTitle("Notificações")
+            SimpleSwitchItem(
                 title = "Ativar notificações",
                 icon = Icons.Default.Notifications,
                 checked = notificationsEnabled,
                 onCheckedChange = { notificationsEnabled = it }
             )
-        }
-
-        SettingsSection(title = "Visualização") {
-            SwitchItem(
+            
+            Spacer(modifier = Modifier.height(32.dp))
+            
+            // Visualização Section
+            SectionTitle("Visualização")
+            SimpleSwitchItem(
                 title = "Tema Escuro",
-                icon = Icons.Default.Visibility,
+                icon = Icons.Default.DarkMode,
                 checked = themeManager.isDarkTheme,
                 onCheckedChange = { 
                     themeManager.DarkTheme(it)
                 }
             )
-        }
-
-        SettingsSection(title = "Clientes") {
-            SettingsItem("Registar Cliente", Icons.Default.PersonAdd) {
-                navController.navigate("client_registration")
-            }
-        }
-
-        SettingsSection(title = "Sobre") {
-            SettingsItem("Versão 1.0.0", Icons.Default.Settings, enabled = false)
-            SettingsItem("Contactar Suporte", Icons.Default.SupportAgent) {
+            
+            Spacer(modifier = Modifier.height(32.dp))
+            
+            // Sobre Section
+            SectionTitle("Sobre")
+            SimpleSettingsItem("Versão 1.0.0", Icons.Default.Info, enabled = false, showArrow = false)
+            SimpleSettingsItem("Contactar Suporte", Icons.Default.SupportAgent) {
                 navController.navigate("support")
             }
         }
     }
 }
 
-// --- COMPONENTES ---
+// --- NOVOS COMPONENTES SIMPLIFICADOS ---
 @Composable
-fun SettingsSection(title: String, content: @Composable ColumnScope.() -> Unit) {
-    Card(
+fun SectionTitle(title: String) {
+    Text(
+        text = title,
+        style = MaterialTheme.typography.titleLarge,
+        fontWeight = FontWeight.Bold,
+        color = MaterialTheme.colorScheme.onBackground,
+        modifier = Modifier.padding(bottom = 16.dp)
+    )
+}
+
+@Composable
+fun SimpleSettingsItem(
+    title: String, 
+    icon: ImageVector, 
+    enabled: Boolean = true, 
+    showArrow: Boolean = true,
+    onClick: () -> Unit = {}
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        shape = MaterialTheme.shapes.medium,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            .padding(vertical = 12.dp)
+            .clickable(enabled = enabled) { onClick() }
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = title, 
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = if (enabled) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
+            modifier = Modifier.size(24.dp)
+        )
+        
+        Spacer(modifier = Modifier.width(20.dp))
+        
+        Text(
+            text = title,
+            style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp),
+            modifier = Modifier.weight(1f),
+            color = if (enabled) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
+        )
+        
+        if (showArrow && enabled) {
+            Icon(
+                imageVector = Icons.Default.KeyboardArrowRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
+                modifier = Modifier.size(24.dp)
             )
-            content()
         }
     }
 }
 
 @Composable
-fun SettingsItem(title: String, icon: ImageVector, enabled: Boolean = true, onClick: () -> Unit = {}) {
+fun SimpleSwitchItem(
+    title: String, 
+    icon: ImageVector, 
+    checked: Boolean, 
+    onCheckedChange: (Boolean) -> Unit
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp)
-            .clickable(enabled = enabled) { onClick() }
+            .padding(vertical = 12.dp)
     ) {
         Icon(
-            icon, 
+            imageVector = icon,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurface
+            tint = MaterialTheme.colorScheme.onBackground,
+            modifier = Modifier.size(24.dp)
         )
-        Spacer(modifier = Modifier.width(16.dp))
+        
+        Spacer(modifier = Modifier.width(20.dp))
+        
         Text(
             text = title,
-            style = MaterialTheme.typography.bodyLarge,
+            style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp),
             modifier = Modifier.weight(1f),
-            color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+            color = MaterialTheme.colorScheme.onBackground
         )
-    }
-}
-
-@Composable
-fun SwitchItem(title: String, icon: ImageVector, checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp)
-    ) {
-        Icon(
-            icon, 
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurface
-        )
-        Spacer(modifier = Modifier.width(16.dp))
-        Text(
-            text = title,
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.weight(1f),
-            color = MaterialTheme.colorScheme.onSurface
-        )
+        
         Switch(
-            checked = checked, 
+            checked = checked,
             onCheckedChange = onCheckedChange,
             colors = SwitchDefaults.colors(
                 checkedThumbColor = MaterialTheme.colorScheme.primary,
-                checkedTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+                checkedTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
+                uncheckedThumbColor = MaterialTheme.colorScheme.outline,
+                uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant
             )
         )
     }
-}
