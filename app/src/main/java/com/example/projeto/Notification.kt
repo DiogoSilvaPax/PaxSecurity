@@ -15,14 +15,19 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -30,25 +35,64 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.projeto.viewmodel.NotificationViewModel
+import java.text.SimpleDateFormat
+import java.util.Locale
 
-data class SimpleNotification(
+data class Notification(
     val id: Int,
+    val title: String,
     val message: String,
-    val date: String,
-    val time: String
+    val time: String,
+    val type: NotificationType
 )
+
+enum class NotificationType {
+    ALERT, WARNING, INFO
+}
 
 @Composable
 fun NotificationsContent(paddingValues: PaddingValues) {
-    // Sample notifications - static for now to avoid crashes
-    val notifications = remember {
-        listOf(
-            SimpleNotification(1, "Cam 05 - Movimento Detectado", "29/05/2025", "18:45"),
-            SimpleNotification(2, "Cam 03 - Ligação Perdida", "25/05/2025", "09:32"),
-            SimpleNotification(3, "Cam 01 - Movimento Detectado", "22/03/2025", "15:37"),
-            SimpleNotification(4, "Sistema de segurança ativado", "20/03/2025", "08:15"),
-            SimpleNotification(5, "Cam 02 - Bateria baixa", "18/03/2025", "14:22")
-        )
+    val notificationViewModel: NotificationViewModel = viewModel()
+    val notificationsFromDb by notificationViewModel.notifications.collectAsState()
+    val unreadCount by notificationViewModel.unreadCount.collectAsState()
+
+    // Initialize notifications when the screen loads
+    LaunchedEffect(Unit) {
+        notificationViewModel.loadNotifications()
+    }
+
+    // Convert database notifications to UI notifications safely
+    val notifications = try {
+        notificationsFromDb.map { entity ->
+            Notification(
+                id = entity.notificationId,
+                title = when (entity.type.lowercase()) {
+                    "movement" -> "Movimento Detectado"
+                    "system" -> "Sistema"
+                    "battery" -> "Bateria"
+                    "access" -> "Acesso"
+                    "maintenance" -> "Manutenção"
+                    else -> "Notificação"
+                },
+                message = entity.message,
+                time = try {
+                    SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(entity.notificationDate)
+                } catch (e: Exception) {
+                    "Data inválida"
+                },
+                type = when (entity.type.lowercase()) {
+                    "movement", "access" -> NotificationType.ALERT
+                    "battery", "maintenance" -> NotificationType.WARNING
+                    "system" -> NotificationType.INFO
+                    else -> NotificationType.INFO
+                }
+            )
+        }
+    } catch (e: Exception) {
+        // Fallback to empty list if there's any error
+        emptyList()
     }
 
     Column(modifier = Modifier.padding(paddingValues)) {
@@ -91,19 +135,42 @@ fun NotificationsContent(paddingValues: PaddingValues) {
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(notifications) { notification ->
-                SimpleNotificationCard(notification = notification)
+            if (notifications.isEmpty()) {
+                item {
+                    Text(
+                        text = "Nenhuma notificação disponível",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(16.dp),
+                        textAlign = TextAlign.Center
+                    )
+                }
+            } else {
+                items(notifications) { notification ->
+                    NotificationCard(
+                        notification = notification,
+                        onMarkAsRead = { 
+                            try {
+                                notificationViewModel.markAsRead(notification.id)
+                            } catch (e: Exception) {
+                                // Handle error silently
+                            }
+                        }
+                    )
+                }
             }
         }
     }
 }
 
 @Composable
-fun SimpleNotificationCard(notification: SimpleNotification) {
+fun NotificationCard(
+    notification: Notification,
+    onMarkAsRead: () -> Unit = {}
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { /* Handle click */ },
+            .clickable { onMarkAsRead() },
         colors = CardDefaults.cardColors(containerColor = Color(0xFF2D2D2D)),
         shape = RoundedCornerShape(12.dp)
     ) {
@@ -114,7 +181,7 @@ fun SimpleNotificationCard(notification: SimpleNotification) {
         ) {
             // Date and time
             Text(
-                text = "${notification.date} ${notification.time}",
+                text = notification.time,
                 color = Color.White.copy(alpha = 0.7f),
                 fontSize = 12.sp,
                 modifier = Modifier.padding(bottom = 4.dp)
