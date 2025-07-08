@@ -43,12 +43,18 @@ import com.example.projeto.viewmodel.LoginState
 import com.example.projeto.viewmodel.UserViewModel
 import com.example.projeto.ui.theme.ProjetoTheme
 import com.example.projeto.ui.theme.ThemeManager
+import com.example.projeto.database.DatabaseInitializer
 
 class LoginPage : ComponentActivity() {
     private val userViewModel: UserViewModel by viewModels()
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        // Initialize default users in database
+        val databaseInitializer = DatabaseInitializer(this)
+        databaseInitializer.initializeDefaultUsers()
+        
         setContent {
             ProjetoTheme(darkTheme = true) {
                 val loginState by userViewModel.loginState.collectAsState()
@@ -64,12 +70,6 @@ class LoginPage : ComponentActivity() {
                 } else {
                     LoginScreen(
                         userViewModel = userViewModel,
-                        onLogin = { username, password ->
-                            // Simple authentication check for empty credentials
-                            if (username == "" && password == "") {
-                                userViewModel.setLoggedIn()
-                            }
-                        }
                     )
                 }
             }
@@ -79,8 +79,7 @@ class LoginPage : ComponentActivity() {
 
 @Composable
 fun LoginScreen(
-    userViewModel: UserViewModel,
-    onLogin: (String, String) -> Unit
+    userViewModel: UserViewModel
 ) {
     val loginState by userViewModel.loginState.collectAsState()
     var username by remember { mutableStateOf("") }
@@ -141,11 +140,7 @@ fun LoginScreen(
 
         Button(
             onClick = {
-                if (username.isNotEmpty() && password.isNotEmpty()) {
-                    userViewModel.login(username, password)
-                } else {
-                    onLogin(username, password)
-                }
+                userViewModel.login(username, password)
             },
             enabled = loginState !is LoginState.Loading,
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)

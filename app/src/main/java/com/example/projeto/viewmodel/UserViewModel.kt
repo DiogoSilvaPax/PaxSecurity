@@ -30,13 +30,18 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             _loginState.value = LoginState.Loading
             try {
+                if (username.isEmpty() || password.isEmpty()) {
+                    _loginState.value = LoginState.Error("Por favor, preencha todos os campos")
+                    return@launch
+                }
+                
                 val user = repository.authenticateUser(username, password)
                 if (user != null) {
                     _currentUser.value = user
                     repository.updateLastLogin(user.userId)
                     _loginState.value = LoginState.Success
                 } else {
-                    _loginState.value = LoginState.Error("Credenciais inválidas")
+                    _loginState.value = LoginState.Error("Username ou palavra-passe incorretos")
                 }
             } catch (e: Exception) {
                 _loginState.value = LoginState.Error("Erro ao fazer login: ${e.message}")
