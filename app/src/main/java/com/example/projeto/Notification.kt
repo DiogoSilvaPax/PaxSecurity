@@ -27,8 +27,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,10 +38,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.projeto.viewmodel.NotificationViewModel
-import java.text.SimpleDateFormat
-import java.util.Locale
+import kotlinx.coroutines.delay
 
 data class Notification(
     val id: Int,
@@ -55,45 +54,74 @@ enum class NotificationType {
 
 @Composable
 fun NotificationsContent(paddingValues: PaddingValues) {
-    val notificationViewModel: NotificationViewModel = viewModel()
-    val notificationsFromDb by notificationViewModel.notifications.collectAsState()
-    val unreadCount by notificationViewModel.unreadCount.collectAsState()
-    val isLoading by notificationViewModel.isLoading.collectAsState()
+    var isLoading by remember { mutableStateOf(true) }
+    var notifications by remember { mutableStateOf<List<Notification>>(emptyList()) }
 
-    // Force reload notifications when screen opens
+    // Simular carregamento e criar notificações
     LaunchedEffect(Unit) {
-        notificationViewModel.loadNotifications()
-    }
-
-    // Convert database notifications to UI notifications safely
-    val notifications = try {
-        notificationsFromDb.map { entity ->
+        delay(2000) // 2 segundos de loading
+        
+        // Criar notificações simples
+        notifications = listOf(
             Notification(
-                id = entity.notificationId,
-                title = when (entity.type.lowercase()) {
-                    "movement" -> "Movimento Detectado"
-                    "system" -> "Sistema"
-                    "battery" -> "Bateria"
-                    "access" -> "Acesso"
-                    "maintenance" -> "Manutenção"
-                    else -> "Notificação"
-                },
-                message = entity.message,
-                time = try {
-                    SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(entity.notificationDate)
-                } catch (e: Exception) {
-                    "Agora"
-                },
-                type = when (entity.type.lowercase()) {
-                    "movement", "access" -> NotificationType.ALERT
-                    "battery", "maintenance" -> NotificationType.WARNING
-                    "system" -> NotificationType.INFO
-                    else -> NotificationType.INFO
-                }
+                id = 1,
+                title = "Movimento Detectado",
+                message = "Cam 05 - Movimento Detectado",
+                time = "29/05/2025 18:45",
+                type = NotificationType.ALERT
+            ),
+            Notification(
+                id = 2,
+                title = "Ligação Perdida",
+                message = "Cam 03 - Ligação Perdida",
+                time = "25/05/2025 09:32",
+                type = NotificationType.WARNING
+            ),
+            Notification(
+                id = 3,
+                title = "Movimento Detectado",
+                message = "Cam 01 - Movimento Detectado",
+                time = "22/03/2025 15:37",
+                type = NotificationType.ALERT
+            ),
+            Notification(
+                id = 4,
+                title = "Sistema",
+                message = "Sistema de segurança ativado",
+                time = "20/03/2025 08:15",
+                type = NotificationType.INFO
+            ),
+            Notification(
+                id = 5,
+                title = "Bateria Baixa",
+                message = "Cam 02 - Bateria baixa",
+                time = "18/03/2025 14:22",
+                type = NotificationType.WARNING
+            ),
+            Notification(
+                id = 6,
+                title = "Acesso Autorizado",
+                message = "Acesso autorizado na entrada",
+                time = "15/03/2025 11:30",
+                type = NotificationType.INFO
+            ),
+            Notification(
+                id = 7,
+                title = "Manutenção",
+                message = "Manutenção programada para amanhã",
+                time = "12/03/2025 16:45",
+                type = NotificationType.INFO
+            ),
+            Notification(
+                id = 8,
+                title = "Conexão Restabelecida",
+                message = "Conexão restabelecida com todas as câmaras",
+                time = "10/03/2025 09:15",
+                type = NotificationType.INFO
             )
-        }
-    } catch (e: Exception) {
-        emptyList()
+        )
+        
+        isLoading = false
     }
 
     Column(modifier = Modifier.padding(paddingValues)) {
@@ -155,39 +183,8 @@ fun NotificationsContent(paddingValues: PaddingValues) {
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                if (notifications.isEmpty()) {
-                    item {
-                        Column(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                text = "Nenhuma notificação disponível",
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.padding(16.dp),
-                                textAlign = TextAlign.Center
-                            )
-                            Text(
-                                text = "As notificações aparecerão aqui quando houver atividade",
-                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                                fontSize = 12.sp,
-                                textAlign = TextAlign.Center
-                            )
-                        }
-                    }
-                } else {
-                    items(notifications) { notification ->
-                        NotificationCard(
-                            notification = notification,
-                            onMarkAsRead = { 
-                                try {
-                                    notificationViewModel.markAsRead(notification.id)
-                                } catch (e: Exception) {
-                                    // Handle error silently
-                                }
-                            }
-                        )
-                    }
+                items(notifications) { notification ->
+                    NotificationCard(notification = notification)
                 }
             }
         }
@@ -195,14 +192,11 @@ fun NotificationsContent(paddingValues: PaddingValues) {
 }
 
 @Composable
-fun NotificationCard(
-    notification: Notification,
-    onMarkAsRead: () -> Unit = {}
-) {
+fun NotificationCard(notification: Notification) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onMarkAsRead() },
+            .clickable { /* Marcar como lida */ },
         colors = CardDefaults.cardColors(containerColor = Color(0xFF2D2D2D)),
         shape = RoundedCornerShape(12.dp)
     ) {
