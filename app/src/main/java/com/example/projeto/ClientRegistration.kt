@@ -16,10 +16,28 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.projeto.viewmodel.ClientViewModel
 
+/**
+ * 📋 REGISTO DE CLIENTES - Formulário para novos clientes
+ * 
+ * Esta tela permite registar novos clientes no sistema de segurança.
+ * Quando um cliente é registado, o sistema automaticamente:
+ * 
+ * 1. 👤 Cria perfil do cliente na base de dados
+ * 2. 🏠 Associa uma casa/propriedade ao cliente  
+ * 3. 📹 Atribui câmaras específicas baseadas na localização
+ * 4. 🔔 Gera notificações personalizadas
+ * 5. 📊 Cria logs de auditoria
+ * 
+ * É usado por administradores para expandir a base de clientes.
+ */
+
 @Composable
 fun ClientRegistration(navController: NavController) {
+    // ==================== VIEWMODEL E ESTADOS ====================
+    
     val clientViewModel: ClientViewModel = viewModel()
     
+    // Estados dos campos do formulário
     var firstName by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -29,16 +47,21 @@ fun ClientRegistration(navController: NavController) {
     var state by remember { mutableStateOf("") }
     var zipCode by remember { mutableStateOf("") }
     
+    // Estados de controlo
     var showSuccess by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
 
+    // ==================== INTERFACE DO UTILIZADOR ====================
+    
     Column(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
+        // ==================== CABEÇALHO ====================
+        
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
@@ -59,7 +82,9 @@ fun ClientRegistration(navController: NavController) {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // First Name
+        // ==================== CAMPOS DO FORMULÁRIO ====================
+        
+        // 👤 Nome próprio
         OutlinedTextField(
             value = firstName,
             onValueChange = { firstName = it },
@@ -73,7 +98,7 @@ fun ClientRegistration(navController: NavController) {
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Last Name
+        // 👤 Apelido
         OutlinedTextField(
             value = lastName,
             onValueChange = { lastName = it },
@@ -87,7 +112,7 @@ fun ClientRegistration(navController: NavController) {
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Email
+        // 📧 Email
         OutlinedTextField(
             value = email,
             onValueChange = { email = it },
@@ -102,7 +127,7 @@ fun ClientRegistration(navController: NavController) {
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Phone Number
+        // 📞 Telefone
         OutlinedTextField(
             value = phoneNumber,
             onValueChange = { phoneNumber = it },
@@ -117,7 +142,7 @@ fun ClientRegistration(navController: NavController) {
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Address
+        // 🏠 Morada
         OutlinedTextField(
             value = address,
             onValueChange = { address = it },
@@ -131,7 +156,7 @@ fun ClientRegistration(navController: NavController) {
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // City
+        // 🏙️ Cidade
         OutlinedTextField(
             value = city,
             onValueChange = { city = it },
@@ -145,7 +170,7 @@ fun ClientRegistration(navController: NavController) {
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // State
+        // 🗺️ Distrito
         OutlinedTextField(
             value = state,
             onValueChange = { state = it },
@@ -159,7 +184,7 @@ fun ClientRegistration(navController: NavController) {
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Zip Code
+        // 📮 Código Postal
         OutlinedTextField(
             value = zipCode,
             onValueChange = { zipCode = it },
@@ -173,11 +198,15 @@ fun ClientRegistration(navController: NavController) {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Register Button
+        // ==================== BOTÃO DE REGISTO ====================
+        
         Button(
             onClick = {
+                // 🔍 Validação dos campos obrigatórios
                 if (firstName.isNotEmpty() && lastName.isNotEmpty() && email.isNotEmpty()) {
                     isLoading = true
+                    
+                    // 📝 Chama o ViewModel para registar o cliente
                     clientViewModel.registerClient(
                         firstName = firstName,
                         lastName = lastName,
@@ -188,10 +217,12 @@ fun ClientRegistration(navController: NavController) {
                         state = state,
                         zipCode = zipCode,
                         onSuccess = {
+                            // ✅ Sucesso - Limpa formulário e mostra mensagem
                             isLoading = false
                             showSuccess = true
                             errorMessage = ""
-                            // Clear form
+                            
+                            // Limpa todos os campos
                             firstName = ""
                             lastName = ""
                             email = ""
@@ -202,12 +233,14 @@ fun ClientRegistration(navController: NavController) {
                             zipCode = ""
                         },
                         onError = { error ->
+                            // ❌ Erro - Mostra mensagem de erro
                             isLoading = false
                             errorMessage = error
                             showSuccess = false
                         }
                     )
                 } else {
+                    // ⚠️ Campos obrigatórios em falta
                     errorMessage = "Por favor, preencha os campos obrigatórios (Nome, Apelido, Email)"
                 }
             },
@@ -215,6 +248,7 @@ fun ClientRegistration(navController: NavController) {
             enabled = !isLoading
         ) {
             if (isLoading) {
+                // 🔄 Indicador de carregamento
                 CircularProgressIndicator(
                     color = MaterialTheme.colorScheme.onPrimary,
                     modifier = Modifier.size(16.dp)
@@ -224,6 +258,9 @@ fun ClientRegistration(navController: NavController) {
             }
         }
 
+        // ==================== MENSAGENS DE FEEDBACK ====================
+        
+        // ✅ Mensagem de sucesso
         if (showSuccess) {
             Spacer(modifier = Modifier.height(16.dp))
             Text(
@@ -232,9 +269,22 @@ fun ClientRegistration(navController: NavController) {
             )
         }
 
+        // ❌ Mensagem de erro
         if (errorMessage.isNotEmpty()) {
             Spacer(modifier = Modifier.height(16.dp))
             Text(errorMessage, color = Color.Red)
         }
     }
 }
+
+/**
+ * 📋 RESUMO DO QUE ACONTECE QUANDO REGISTAS UM CLIENTE:
+ * 
+ * 1. 👤 CLIENTE: Cria perfil na tabela 'clientes'
+ * 2. 🏠 CASA: Cria casa associada na tabela 'casas'  
+ * 3. 📹 CÂMARAS: Atribui câmaras baseadas na localização
+ * 4. 🔔 NOTIFICAÇÕES: Gera notificações personalizadas
+ * 5. 📊 LOGS: Cria registos de auditoria
+ * 
+ * É uma operação completa que prepara tudo para o novo cliente!
+ */
