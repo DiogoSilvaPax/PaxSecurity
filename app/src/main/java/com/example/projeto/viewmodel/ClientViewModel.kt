@@ -31,7 +31,7 @@ class ClientViewModel(application: Application) : AndroidViewModel(application) 
     
     // Available camera locations for assignment
     private val availableCameraLocations = listOf(
-        "Porta_Entrada", "Sala", "Quarto", "Cozinha", "Quintal", "Estacionamento"
+        "Porta_Entrada", "Sala", "Quarto", "Cozinha", "Quintal", "Estacionamento", "Rececao" , "Armazem" , "Sala_Reunioes" , "Patio_Exterior" , "Estacionamento_Carros" , "Porta_Principal"
     )
     
     init {

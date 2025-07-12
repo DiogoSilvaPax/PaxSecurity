@@ -19,6 +19,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
@@ -188,6 +189,12 @@ fun CameraCard(camera: Camera, onClick: (Camera) -> Unit) {
         "Cozinha" -> R.drawable.cozinha
         "Quintal" -> R.drawable.quintal
         "Porta_Entrada" -> R.drawable.cao_entrada
+        "Rececao" -> R.drawable.rececao
+        "Armazem" -> R.drawable.armazem
+        "Sala_Reunioes" -> R.drawable.sala_reunioes
+        "Patio_Exterior" -> R.drawable.patio_exterior
+        "Estacionamento_Carros" -> R.drawable.carros_estacionamento
+        "Porta_Principal" -> R.drawable.porta_principal
         else -> R.drawable.quarto
     }
 
@@ -251,6 +258,12 @@ fun ExpandedCameraView(camera: Camera, onClose: () -> Unit) {
         "Cozinha" -> R.drawable.cozinha
         "Quintal" -> R.drawable.quintal
         "Porta_Entrada" -> R.drawable.cao_entrada
+        "Rececao" -> R.drawable.rececao
+        "Armazem" -> R.drawable.armazem
+        "Sala_Reunioes" -> R.drawable.sala_reunioes
+        "Patio_Exterior" -> R.drawable.patio_exterior
+        "Estacionamento_Carros" -> R.drawable.carros_estacionamento
+        "Porta_Principal" -> R.drawable.porta_principal
         else -> R.drawable.quarto
     }
 
@@ -265,13 +278,21 @@ fun ExpandedCameraView(camera: Camera, onClose: () -> Unit) {
                 .align(Alignment.Center)
                 .padding(16.dp)
         ) {
+
             // Nome da câmara
             Text(
                 text = camera.name,
                 color = MaterialTheme.colorScheme.onBackground,
-                fontSize = 45.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 30.dp)
+                fontSize = 36.sp,
+                fontWeight = FontWeight.SemiBold,
+                lineHeight = 40.sp,
+                textAlign = TextAlign.Center,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 16.dp)
+
             )
 
             // Vídeo expandido
@@ -372,12 +393,12 @@ private fun getCamerasOsmarG(): List<Camera> = listOf(
  * Foco em monitorização empresarial e controlo de acesso
  */
 private fun getCamerasDiogoS(): List<Camera> = listOf(
-    Camera(6, "Câmara Receção", "Sala", CameraStatus.ONLINE, "192.168.2.101", true, null, "11:20", 2),
-    Camera(7, "Câmara Estacionamento", "Estacionamento", CameraStatus.ONLINE, "192.168.2.102", true, null, "10:15", 2),
-    Camera(8, "Câmara Armazém", "Quarto", CameraStatus.MAINTENANCE, "192.168.2.103", false, 45, "09:30", 2),
-    Camera(9, "Câmara Entrada Principal", "Porta_Entrada", CameraStatus.ONLINE, "192.168.2.104", true, null, "08:45", 2),
-    Camera(10, "Câmara Sala Reuniões", "Cozinha", CameraStatus.ONLINE, "192.168.2.105", false, 78, "07:50", 2),
-    Camera(11, "Câmara Pátio Exterior", "Quintal", CameraStatus.OFFLINE, "192.168.2.106", false, null, "06:30", 2)
+    Camera(6, "Câmara Receção", "Rececao", CameraStatus.ONLINE, "192.168.2.101", true, null, "11:20", 2),
+    Camera(7, "Câmara Estacionamento", "Estacionamento_Carros", CameraStatus.ONLINE, "192.168.2.102", true, null, "10:15", 2),
+    Camera(8, "Câmara Armazém", "Armazem", CameraStatus.MAINTENANCE, "192.168.2.103", false, 45, "09:30", 2),
+    Camera(9, "Câmara Porta Principal", "Porta_Principal", CameraStatus.ONLINE, "192.168.2.104", true, null, "08:45", 2),
+    Camera(10, "Câmara Sala Reuniões", "Sala_Reunioes", CameraStatus.ONLINE, "192.168.2.105", false, 78, "07:50", 2),
+    Camera(11, "Câmara Pátio Exterior", "Patio_Exterior", CameraStatus.OFFLINE, "192.168.2.106", false, null, "06:30", 2)
 )
 
 /**
