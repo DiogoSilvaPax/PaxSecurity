@@ -1,36 +1,14 @@
 package com.example.projeto
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -38,96 +16,45 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.delay
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.projeto.viewmodel.NotificationViewModel
+import com.example.projeto.viewmodel.UserViewModel
+import java.text.SimpleDateFormat
+import java.util.*
 
-data class Notification(
-    val id: Int,
-    val title: String,
-    val message: String,
-    val time: String,
-    val type: NotificationType
-)
-
-enum class NotificationType {
-    ALERT, WARNING, INFO
-}
-
+/**
+ * 🔔 TELA DE NOTIFICAÇÕES - Mostra notificações específicas do utilizador
+ * 
+ * Esta tela:
+ * - Carrega notificações do utilizador atual
+ * - Mostra loading durante 2 segundos
+ * - Exibe notificações personalizadas
+ * - Permite marcar como lidas
+ */
 @Composable
 fun NotificationsContent(paddingValues: PaddingValues) {
-    var isLoading by remember { mutableStateOf(true) }
-    var notifications by remember { mutableStateOf<List<Notification>>(emptyList()) }
-
-    // Simular carregamento e criar notificações
-    LaunchedEffect(Unit) {
-        delay(2000) // 2 segundos de loading
-        
-        // Criar notificações simples
-        notifications = listOf(
-            Notification(
-                id = 1,
-                title = "Movimento Detectado",
-                message = "Cam 05 - Movimento Detectado",
-                time = "29/05/2025 18:45",
-                type = NotificationType.ALERT
-            ),
-            Notification(
-                id = 2,
-                title = "Ligação Perdida",
-                message = "Cam 03 - Ligação Perdida",
-                time = "25/05/2025 09:32",
-                type = NotificationType.WARNING
-            ),
-            Notification(
-                id = 3,
-                title = "Movimento Detectado",
-                message = "Cam 01 - Movimento Detectado",
-                time = "22/03/2025 15:37",
-                type = NotificationType.ALERT
-            ),
-            Notification(
-                id = 4,
-                title = "Sistema",
-                message = "Sistema de segurança ativado",
-                time = "20/03/2025 08:15",
-                type = NotificationType.INFO
-            ),
-            Notification(
-                id = 5,
-                title = "Bateria Baixa",
-                message = "Cam 02 - Bateria baixa",
-                time = "18/03/2025 14:22",
-                type = NotificationType.WARNING
-            ),
-            Notification(
-                id = 6,
-                title = "Acesso Autorizado",
-                message = "Acesso autorizado na entrada",
-                time = "15/03/2025 11:30",
-                type = NotificationType.INFO
-            ),
-            Notification(
-                id = 7,
-                title = "Manutenção",
-                message = "Manutenção programada para amanhã",
-                time = "12/03/2025 16:45",
-                type = NotificationType.INFO
-            ),
-            Notification(
-                id = 8,
-                title = "Conexão Restabelecida",
-                message = "Conexão restabelecida com todas as câmaras",
-                time = "10/03/2025 09:15",
-                type = NotificationType.INFO
-            )
-        )
-        
-        isLoading = false
+    // ViewModels
+    val notificationViewModel: NotificationViewModel = viewModel()
+    val userViewModel: UserViewModel = viewModel()
+    
+    // Estados observáveis
+    val notifications by notificationViewModel.notifications.collectAsState()
+    val isLoading by notificationViewModel.isLoading.collectAsState()
+    val currentUser by userViewModel.currentUser.collectAsState()
+    
+    // Carrega notificações quando a tela abre ou utilizador muda
+    LaunchedEffect(currentUser) {
+        val userId = currentUser?.userId ?: 1 // Default para OsmarG se não houver utilizador
+        notificationViewModel.loadNotificationsForUser(userId)
     }
 
+    // ==================== CABEÇALHO ====================
+    
     Column(modifier = Modifier.padding(paddingValues)) {
+        // Ícone de notificações
         Icon(
             Icons.Default.Notifications,
-            contentDescription = "notifications",
+            contentDescription = "Notificações",
             modifier = Modifier
                 .padding(top = 75.dp)
                 .fillMaxWidth()
@@ -135,6 +62,7 @@ fun NotificationsContent(paddingValues: PaddingValues) {
             tint = MaterialTheme.colorScheme.onBackground
         )
 
+        // Título da tela
         Text(
             text = "Notificações",
             color = MaterialTheme.colorScheme.onBackground,
@@ -145,21 +73,33 @@ fun NotificationsContent(paddingValues: PaddingValues) {
                 .fillMaxWidth()
                 .padding(top = 40.dp)
         )
+        
+        // Mostra nome do utilizador atual
+        currentUser?.let { user ->
+            Text(
+                text = "Utilizador: ${user.username}",
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
+                fontSize = 14.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp)
+            )
+        }
     }
 
+    // ==================== CONTEÚDO PRINCIPAL ====================
+    
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(paddingValues)
             .padding(16.dp)
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(bottom = 250.dp)
-        ) {
-            // Empty row for spacing
-        }
+        // Espaçamento para o cabeçalho
+        Spacer(modifier = Modifier.height(280.dp))
 
+        // Estado de carregamento
         if (isLoading) {
             Column(
                 modifier = Modifier.fillMaxSize(),
@@ -170,34 +110,69 @@ fun NotificationsContent(paddingValues: PaddingValues) {
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(48.dp)
                 )
-                Spacer(modifier = Modifier.padding(8.dp))
+                Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     text = "A carregar notificações...",
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontSize = 16.sp,
-                    modifier = Modifier.padding(top = 16.dp)
+                    fontSize = 16.sp
                 )
             }
-        } else {
+        } 
+        // Lista de notificações
+        else if (notifications.isNotEmpty()) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(notifications) { notification ->
-                    NotificationCard(notification = notification)
+                    NotificationCard(
+                        notification = notification,
+                        onMarkAsRead = { notificationViewModel.markAsRead(notification.notificationId) }
+                    )
                 }
+            }
+        } 
+        // Estado vazio
+        else {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = "Nenhuma notificação disponível",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontSize = 16.sp,
+                    textAlign = TextAlign.Center
+                )
             }
         }
     }
 }
 
+/**
+ * 📋 CARD DE NOTIFICAÇÃO - Componente individual para cada notificação
+ */
 @Composable
-fun NotificationCard(notification: Notification) {
+fun NotificationCard(
+    notification: com.example.projeto.database.entities.NotificationEntity,
+    onMarkAsRead: () -> Unit
+) {
+    // Formatador de data
+    val dateFormatter = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+    
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { /* Marcar como lida */ },
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF2D2D2D)),
+            .clickable { 
+                if (!notification.isRead) {
+                    onMarkAsRead()
+                }
+            },
+        colors = CardDefaults.cardColors(
+            containerColor = if (notification.isRead) 
+                Color(0xFF1A1A1A) else Color(0xFF2D2D2D)
+        ),
         shape = RoundedCornerShape(12.dp)
     ) {
         Column(
@@ -205,21 +180,34 @@ fun NotificationCard(notification: Notification) {
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            // Date and time
+            // Data e hora
             Text(
-                text = notification.time,
+                text = dateFormatter.format(notification.notificationDate),
                 color = Color.White.copy(alpha = 0.7f),
                 fontSize = 12.sp,
                 modifier = Modifier.padding(bottom = 4.dp)
             )
             
-            // Message
+            // Mensagem da notificação
             Text(
                 text = notification.message,
-                color = Color.White,
+                color = if (notification.isRead) 
+                    Color.White.copy(alpha = 0.6f) else Color.White,
                 fontSize = 14.sp,
-                fontWeight = FontWeight.Medium
+                fontWeight = if (notification.isRead) 
+                    FontWeight.Normal else FontWeight.Medium
             )
+            
+            // Indicador de prioridade
+            if (notification.priority == "high") {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "🔴 ALTA PRIORIDADE",
+                    color = Color.Red,
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
     }
 }

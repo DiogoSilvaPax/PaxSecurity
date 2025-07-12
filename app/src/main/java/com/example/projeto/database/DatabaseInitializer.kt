@@ -2,117 +2,89 @@ package com.example.projeto.database
 
 import android.content.Context
 import com.example.projeto.database.entities.User
-import com.example.projeto.database.entities.NotificationEntity
 import com.example.projeto.repository.UserRepository
-import com.example.projeto.repository.NotificationRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.security.MessageDigest
 import java.util.Date
-import java.util.Calendar
 
+/**
+ * 🚀 INICIALIZADOR DA BASE DE DADOS
+ * 
+ * Esta classe é responsável por:
+ * - Criar utilizadores padrão no sistema
+ * - Configurar dados iniciais
+ * - Garantir que a aplicação tem dados para funcionar
+ */
 class DatabaseInitializer(private val context: Context) {
     
     private val database = AppDatabase.getDatabase(context)
     private val userRepository = UserRepository(database.userDao())
-    private val notificationRepository = NotificationRepository(database.notificationDao())
     
+    /**
+     * 👥 Inicializa utilizadores padrão do sistema
+     * Cria diferentes tipos de utilizadores para demonstração
+     */
     fun initializeDefaultUsers() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                // Check if users already exist
-                val existingUser1 = userRepository.getUserByUsername("OsmarG")
-                val existingUser2 = userRepository.getUserByUsername("DiogoS")
+                // Lista de utilizadores padrão para criar
+                val defaultUsers = listOf(
+                    Triple("OsmarG", "osmar123", "osmar@security.com"),
+                    Triple("DiogoS", "diogo123", "diogo@security.com"),
+                    Triple("admin", "admin123", "admin@security.com"),
+                    Triple("cliente1", "cliente123", "cliente1@email.com"),
+                    Triple("cliente2", "cliente456", "cliente2@email.com")
+                )
                 
-                var user1Id: Long? = null
-                var user2Id: Long? = null
-                
-                if (existingUser1 == null) {
-                    user1Id = createUser("OsmarG", "osmar123", "osmar@example.com")
-                } else {
-                    user1Id = existingUser1.userId.toLong()
+                // Cria cada utilizador se não existir
+                defaultUsers.forEach { (username, password, email) ->
+                    val existingUser = userRepository.getUserByUsername(username)
+                    
+                    if (existingUser == null) {
+                        createUser(username, password, email)
+                        println("✅ Utilizador criado: $username")
+                    } else {
+                        println("ℹ️ Utilizador já existe: $username")
+                    }
                 }
-                
-                if (existingUser2 == null) {
-                    user2Id = createUser("DiogoS", "diogo123", "diogo@example.com")
-                } else {
-                    user2Id = existingUser2.userId.toLong()
-                }
-                
-                // Create notifications for each user
-                user1Id?.let { createNotificationsForUser(it.toInt(), "OsmarG") }
-                user2Id?.let { createNotificationsForUser(it.toInt(), "DiogoS") }
                 
             } catch (e: Exception) {
-                // Handle initialization errors gracefully
+                println("❌ Erro ao inicializar utilizadores: ${e.message}")
             }
         }
     }
     
+    /**
+     * 👤 Cria um novo utilizador na base de dados
+     */
     private suspend fun createUser(username: String, password: String, email: String): Long {
         val hashedPassword = hashPassword(password)
+        
+        // Define role baseado no username
+        val role = when (username) {
+            "admin" -> "admin"
+            "OsmarG", "DiogoS" -> "manager"
+            else -> "user"
+        }
+        
         val user = User(
             username = username,
             passwordHash = hashedPassword,
             email = email,
-            role = "admin",
+            role = role,
             createdAt = Date(),
             updatedAt = Date(),
             status = "active"
         )
+        
         return userRepository.insertUser(user)
     }
     
-    private suspend fun createNotificationsForUser(userId: Int, username: String) {
-        try {
-            val calendar = Calendar.getInstance()
-            
-            val userNotifications = when (username) {
-                "OsmarG" -> listOf(
-                    Triple("Cam 05 - Movimento Detectado", "movement", "high"),
-                    Triple("Cam 03 - Ligação Perdida", "system", "medium"),
-                    Triple("Cam 01 - Movimento Detectado", "movement", "high"),
-                    Triple("Sistema de segurança ativado", "system", "normal"),
-                    Triple("Cam 02 - Bateria baixa", "battery", "medium"),
-                    Triple("Acesso autorizado na entrada", "access", "normal"),
-                    Triple("Manutenção programada", "maintenance", "low"),
-                    Triple("Todas as câmaras online", "system", "normal")
-                )
-                "DiogoS" -> listOf(
-                    Triple("Cam 04 - Movimento no quintal", "movement", "high"),
-                    Triple("Cam 06 - Conexão instável", "system", "medium"),
-                    Triple("Cam 02 - Movimento na sala", "movement", "high"),
-                    Triple("Backup automático concluído", "system", "normal"),
-                    Triple("Cam 01 - Bateria crítica", "battery", "high"),
-                    Triple("Acesso negado - tentativa suspeita", "access", "high"),
-                    Triple("Atualização de firmware", "maintenance", "normal"),
-                    Triple("Sistema funcionando normalmente", "system", "normal")
-                )
-                else -> emptyList()
-            }
-            
-            userNotifications.forEachIndexed { index, (message, type, priority) ->
-                calendar.add(Calendar.HOUR, -index)
-                
-                val notification = NotificationEntity(
-                    clientId = userId,
-                    message = message,
-                    type = type,
-                    priority = priority,
-                    notificationDate = calendar.time,
-                    createdAt = Date(),
-                    updatedAt = Date(),
-                    status = "unread",
-                    isRead = false
-                )
-                notificationRepository.insertNotification(notification)
-            }
-        } catch (e: Exception) {
-            // Handle notification creation errors
-        }
-    }
-    
+    /**
+     * 🔐 Encripta password usando SHA-256
+     */
     private fun hashPassword(password: String): String {
         val digest = MessageDigest.getInstance("SHA-256")
         val hash = digest.digest(password.toByteArray())
