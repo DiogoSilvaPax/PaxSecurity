@@ -99,7 +99,7 @@ fun CameraContent(paddingValues: PaddingValues = PaddingValues()) {
         .verticalScroll(rememberScrollState())
         .padding(horizontal = 16.dp)
     ) {
-        // Ícone de câmara
+        // Ícone da câmara
         Icon(
             painter = painterResource(R.drawable.videocam),
             contentDescription = "camera",
@@ -122,7 +122,7 @@ fun CameraContent(paddingValues: PaddingValues = PaddingValues()) {
                 .padding(top = 40.dp, bottom = 20.dp)
         )
         
-        // 🆕 Mostra utilizador atual e número de câmaras
+        // 🆕 Mostra o utilizador atual e o número de câmaras
         currentUser?.let { user ->
             Text(
                 text = "Utilizador: ${user.username} | ${userCameras.size} câmaras",
@@ -136,7 +136,7 @@ fun CameraContent(paddingValues: PaddingValues = PaddingValues()) {
         }
     }
 
-    // ==================== GRELHA DE CÂMARAS ====================
+    // ==================== Grelha das câmaras ====================
     
     Column(
         modifier = Modifier
@@ -175,13 +175,13 @@ fun CameraContent(paddingValues: PaddingValues = PaddingValues()) {
     }
 }
 
-// ==================== CARD DE CÂMARA ====================
+// ==================== Cartão da câmara ====================
 
 @Composable
 fun CameraCard(camera: Camera, onClick: (Camera) -> Unit) {
     val context = LocalContext.current
 
-    // 🎨 Seleciona GIF baseado na localização
+    // Seleciona o GIF baseado na localização
     val gifRes = when (camera.location) {
         "Sala" -> R.drawable.sala
         "Quarto" -> R.drawable.quarto
@@ -245,7 +245,7 @@ fun CameraCard(camera: Camera, onClick: (Camera) -> Unit) {
     }
 }
 
-// ==================== VISTA EXPANDIDA ====================
+// ==================== Vista do ecrâ Expandido ====================
 
 @Composable
 fun ExpandedCameraView(camera: Camera, onClose: () -> Unit) {
@@ -362,7 +362,7 @@ fun ExpandedCameraView(camera: Camera, onClose: () -> Unit) {
 // ==================== CÂMARAS POR UTILIZADOR ====================
 
 /**
- * 🎯 FUNÇÃO PRINCIPAL - Retorna câmaras específicas para cada utilizador
+ * 🎯 FUNÇÃO PRINCIPAL - Atribui câmaras específicas para cada utilizador
  * 
  * Cada utilizador tem um perfil diferente de câmaras baseado nas suas necessidades:
  * - Residencial vs Comercial vs Administrativo
@@ -377,7 +377,7 @@ fun getCamerasForUser(userId: Int): List<Camera> {
 }
 
 /**
- * 🏠 CÂMARAS PARA OSMARG - Segurança Residencial
+ * 🏠 CÂMARAS PARA o utilizador OsmarGonçalves - Segurança Residencial
  * Foco em monitorização doméstica e familiar
  */
 private fun getCamerasOsmarG(): List<Camera> = listOf(
@@ -389,7 +389,7 @@ private fun getCamerasOsmarG(): List<Camera> = listOf(
 )
 
 /**
- * 🏢 CÂMARAS PARA DIOGOS - Segurança Comercial
+ * 🏢 CÂMARAS PARA o Utilizador DiogoSilva - Segurança Comercial
  * Foco em monitorização empresarial e controlo de acesso
  */
 private fun getCamerasDiogoS(): List<Camera> = listOf(
@@ -402,14 +402,21 @@ private fun getCamerasDiogoS(): List<Camera> = listOf(
 )
 
 /**
- * 👨‍💼 CÂMARAS PARA ADMIN - Monitorização Geral
- * Acesso a todas as câmaras do sistema para gestão
+ * 👨‍💼 CÂMARAS para o administrador - Monitorização Geral
+ * Acesso a todas as câmaras do sistema
  */
 private fun getCamerasAdmin(): List<Camera> = listOf(
-    Camera(12, "Monitor Central 01", "Sala", CameraStatus.ONLINE, "192.168.0.101", true, null, "12:00", 3),
-    Camera(13, "Monitor Central 02", "Estacionamento", CameraStatus.ONLINE, "192.168.0.102", true, null, "11:45", 3),
-    Camera(14, "Câmara Servidor", "Quarto", CameraStatus.ONLINE, "192.168.0.103", false, null, "11:30", 3),
-    Camera(15, "Câmara Backup", "Cozinha", CameraStatus.MAINTENANCE, "192.168.0.104", false, 92, "10:20", 3)
+    Camera(1, "Câmara Entrada", "Porta_Entrada", CameraStatus.ONLINE, "192.168.1.102", false, null, "09:45", 3),
+    Camera(2, "Câmara Sala", "Sala", CameraStatus.ONLINE, "192.168.1.103", false, 15, "08:45", 3),
+    Camera(3, "Câmara Quarto", "Quarto", CameraStatus.OFFLINE, "192.168.1.104", false, 12, "07:20", 3),
+    Camera(4, "Câmara Cozinha", "Cozinha", CameraStatus.ERROR, "192.168.1.105", false, null, "06:45", 3),
+    Camera(5, "Câmara Quintal", "Quintal", CameraStatus.ONLINE, "192.168.1.106", true, 85, "06:30", 3),
+    Camera(6, "Câmara Receção", "Rececao", CameraStatus.ONLINE, "192.168.2.101", true, null, "11:20", 3),
+    Camera(7, "Câmara Estacionamento", "Estacionamento_Carros", CameraStatus.ONLINE, "192.168.2.102", true, null, "10:15", 3),
+    Camera(8, "Câmara Armazém", "Armazem", CameraStatus.MAINTENANCE, "192.168.2.103", false, 45, "09:30", 3),
+    Camera(9, "Câmara Porta Principal", "Porta_Principal", CameraStatus.ONLINE, "192.168.2.104", true, null, "08:45", 3),
+    Camera(10, "Câmara Sala Reuniões", "Sala_Reunioes", CameraStatus.ONLINE, "192.168.2.105", false, 78, "07:50", 3),
+    Camera(11, "Câmara Pátio Exterior", "Patio_Exterior", CameraStatus.OFFLINE, "192.168.2.106", false, null, "06:30", 3)
 )
 
 /**

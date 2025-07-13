@@ -13,7 +13,7 @@ import java.util.Date
  * 🚀 INICIALIZADOR DA BASE DE DADOS
  * 
  * Esta classe é responsável por:
- * - Criar utilizadores padrão no sistema
+ * - Criar utilizadores no sistema
  * - Configurar dados iniciais
  * - Garantir que a aplicação tem dados para funcionar
  */
@@ -29,13 +29,11 @@ class DatabaseInitializer(private val context: Context) {
     fun initializeDefaultUsers() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                // Lista de utilizadores padrão para criar
+                // Lista de utilizadores
                 val defaultUsers = listOf(
                     Triple("OsmarG", "osmar123", "osmar@security.com"),
                     Triple("DiogoS", "diogo123", "diogo@security.com"),
                     Triple("admin", "admin123", "admin@security.com"),
-                    Triple("cliente1", "cliente123", "cliente1@email.com"),
-                    Triple("cliente2", "cliente456", "cliente2@email.com")
                 )
                 
                 // Cria cada utilizador se não existir
