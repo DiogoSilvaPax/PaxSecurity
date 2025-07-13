@@ -36,20 +36,51 @@ class DatabaseInitializer(private val context: Context) {
                     Triple("admin", "admin123", "admin@security.com"),
                 )
                 
+                // 🔍 DEBUG: Vamos verificar se os utilizadores são criados
+                println("🔧 [DEBUG] Iniciando criação de utilizadores...")
+                
                 // Cria cada utilizador se não existir
                 defaultUsers.forEach { (username, password, email) ->
                     val existingUser = userRepository.getUserByUsername(username)
                     
                     if (existingUser == null) {
-                        createUser(username, password, email)
-                        println("✅ Utilizador criado: $username")
+                        val userId = createUser(username, password, email)
+                        println("✅ [DEBUG] Utilizador criado: $username (ID: $userId)")
+                        
+                        // 🔍 Verificar se a password foi encriptada corretamente
+                        val hashedPassword = hashPassword(password)
+                        println("🔐 [DEBUG] Password original: $password")
+                        println("🔐 [DEBUG] Password encriptada: $hashedPassword")
+                        
                     } else {
-                        println("ℹ️ Utilizador já existe: $username")
+                        println("ℹ️ [DEBUG] Utilizador já existe: $username (ID: ${existingUser.userId})")
+                        
+                        // 🔍 Verificar password do utilizador existente
+                        println("🔐 [DEBUG] Password na BD: ${existingUser.passwordHash}")
+                        println("🔐 [DEBUG] Password esperada: ${hashPassword(password)}")
+                        println("🔐 [DEBUG] Passwords coincidem: ${existingUser.passwordHash == hashPassword(password)}")
                     }
                 }
                 
+                // 🧪 Teste específico para admin
+                println("\n🧪 [TESTE ADMIN] Verificando credenciais do admin...")
+                val adminUser = userRepository.getUserByUsername("admin")
+                if (adminUser != null) {
+                    val testPassword = "admin123"
+                    val hashedTestPassword = hashPassword(testPassword)
+                    val authResult = userRepository.authenticateUser("admin", testPassword)
+                    
+                    println("👤 [ADMIN] Utilizador encontrado: ${adminUser.username}")
+                    println("🔐 [ADMIN] Password na BD: ${adminUser.passwordHash}")
+                    println("🔐 [ADMIN] Password teste: $hashedTestPassword")
+                    println("✅ [ADMIN] Autenticação: ${if (authResult != null) "SUCESSO" else "FALHOU"}")
+                } else {
+                    println("❌ [ADMIN] Utilizador admin não encontrado!")
+                }
+                
             } catch (e: Exception) {
-                println("❌ Erro ao inicializar utilizadores: ${e.message}")
+                println("❌ [ERROR] Erro ao inicializar utilizadores: ${e.message}")
+                e.printStackTrace()
             }
         }
     }
@@ -82,6 +113,7 @@ class DatabaseInitializer(private val context: Context) {
     
     /**
      * 🔐 Encripta password usando SHA-256
+     * IMPORTANTE: Deve ser igual ao método no UserRepository
      */
     private fun hashPassword(password: String): String {
         val digest = MessageDigest.getInstance("SHA-256")
