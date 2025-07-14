@@ -29,7 +29,6 @@ class ClientViewModel(application: Application) : AndroidViewModel(application) 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
     
-    // Available camera locations for assignment
     private val availableCameraLocations = listOf(
         "Porta_Entrada", "Sala", "Quarto", "Cozinha", "Quintal", "Estacionamento", "Rececao" , "Armazem" , "Sala_Reunioes" , "Patio_Exterior" , "Estacionamento_Carros" , "Porta_Principal"
     )
@@ -65,14 +64,12 @@ class ClientViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                // Check if email already exists
                 val existingClient = clientRepository.getClientByEmail(email)
                 if (existingClient != null) {
                     onError("Cliente com este email já existe")
                     return@launch
                 }
                 
-                // Create new client
                 val client = Client(
                     firstName = firstName,
                     lastName = lastName,
@@ -87,10 +84,7 @@ class ClientViewModel(application: Application) : AndroidViewModel(application) 
                 
                 val clientId = clientRepository.insertClient(client).toInt()
                 
-                // Create a house for the client
                 createHouseForClient(clientId, address, city, state, zipCode)
-                
-                // Create dummy notifications for the client
                 createDummyNotifications(clientId)
                 
                 onSuccess()
@@ -116,14 +110,13 @@ class ClientViewModel(application: Application) : AndroidViewModel(application) 
             city = city,
             state = state,
             zipCode = zipCode,
-            value = BigDecimal("250000.00"), // Default value
+            value = BigDecimal("250000.00"),
             status = "active"
         )
         houseRepository.insertHouse(house)
     }
     
     private suspend fun createDummyNotifications(clientId: Int) {
-        // Get half of the available camera locations for this client
         val assignedCameras = availableCameraLocations.shuffled().take(3)
         
         val dummyNotifications = listOf(
