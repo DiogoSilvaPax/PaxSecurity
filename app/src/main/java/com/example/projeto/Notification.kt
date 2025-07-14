@@ -218,13 +218,14 @@ fun NotificationCard(notification: Notification) {
     // Calcula a opacidade baseada no tempo para criar efeito piscante
     val priority = notification.type.getPriority()
     val (blinkColor, blinkSpeed) = when (priority) {
-        "high" -> Color.Red to 500f // Pisca rápido (500ms)
-        "medium" -> Color(0xFFFFA500) to 1000f // Pisca médio (1000ms) - Laranja/Amarelo
-        else -> Color(0xFF2980B9) to 1500f // Pisca lento (1500ms) - Azul
+        "high" -> Color(0xFFFF0040) to 400f // Vermelho vibrante, pisca muito rápido
+        "medium" -> Color(0xFFFFD700) to 800f // Amarelo dourado vibrante, pisca médio
+        else -> Color(0xFF00BFFF) to 1200f // Azul ciano vibrante, pisca lento
     }
     
+    // Efeito piscante mais pronunciado (de 0.1 a 1.0)
     val alpha = (sin((currentTime % blinkSpeed) / blinkSpeed * 2 * Math.PI) + 1) / 2
-    val blinkAlpha = 0.3f + (alpha * 0.7f).toFloat()
+    val blinkAlpha = 0.1f + (alpha * 0.9f).toFloat()
 
     Card(
         modifier = Modifier
@@ -233,37 +234,36 @@ fun NotificationCard(notification: Notification) {
         colors = CardDefaults.cardColors(containerColor = Color(0xFF2D2D2D)),
         shape = RoundedCornerShape(12.dp)
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End
-        ) {
-            // Bolinha piscante no canto superior direito
-            Surface(
-                modifier = Modifier
-                    .size(12.dp)
-                    .padding(top = 8.dp, end = 8.dp)
-                    .alpha(blinkAlpha),
-                shape = CircleShape,
-                color = blinkColor
-            ) {
-                // Conteúdo vazio, apenas a cor da superfície
-            }
-        }
-        
-        Spacer(modifier = Modifier.height(4.dp))
-        
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            // Date and time
-            Text(
-                text = notification.time,
-                color = Color.White.copy(alpha = 0.7f),
-                fontSize = 12.sp,
-                modifier = Modifier.padding(bottom = 4.dp, top = 0.dp)
-            )
+            // Data/hora com bolinha piscante na mesma linha
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = notification.time,
+                    color = Color.White.copy(alpha = 0.7f),
+                    fontSize = 12.sp
+                )
+                
+                // Bolinha piscante vibrante
+                Surface(
+                    modifier = Modifier
+                        .size(14.dp)
+                        .alpha(blinkAlpha),
+                    shape = CircleShape,
+                    color = blinkColor
+                ) {
+                    // Conteúdo vazio, apenas a cor da superfície
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(8.dp))
             
             // Message
             Text(
