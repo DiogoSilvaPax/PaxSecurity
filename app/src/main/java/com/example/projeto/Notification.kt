@@ -14,6 +14,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Info
@@ -25,6 +26,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -33,12 +35,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
+import kotlin.math.abs
+import kotlin.math.sin
 
 data class Notification(
     val id: Int,
@@ -49,7 +54,15 @@ data class Notification(
 )
 
 enum class NotificationType {
-    ALERT, WARNING, INFO
+    ALERT, WARNING, INFO;
+    
+    fun getPriority(): String {
+        return when (this) {
+            ALERT -> "high"
+            WARNING -> "medium"
+            INFO -> "low"
+        }
+    }
 }
 
 @Composable
@@ -66,21 +79,21 @@ fun NotificationsContent(paddingValues: PaddingValues) {
             Notification(
                 id = 1,
                 title = "Movimento Detectado",
-                message = "Cam 05 - Movimento Detectado",
+                message = "Quintal - Movimento Detectado",
                 time = "29/05/2025 18:45",
                 type = NotificationType.ALERT
             ),
             Notification(
                 id = 2,
                 title = "Ligação Perdida",
-                message = "Cam 03 - Ligação Perdida",
+                message = "Quarto - Ligação Perdida",
                 time = "25/05/2025 09:32",
                 type = NotificationType.WARNING
             ),
             Notification(
                 id = 3,
                 title = "Movimento Detectado",
-                message = "Cam 01 - Movimento Detectado",
+                message = "Entrada - Movimento Detectado",
                 time = "22/03/2025 15:37",
                 type = NotificationType.ALERT
             ),
@@ -94,7 +107,7 @@ fun NotificationsContent(paddingValues: PaddingValues) {
             Notification(
                 id = 5,
                 title = "Bateria Baixa",
-                message = "Cam 02 - Bateria baixa",
+                message = "Sala - Bateria baixa",
                 time = "18/03/2025 14:22",
                 type = NotificationType.WARNING
             ),
@@ -193,6 +206,26 @@ fun NotificationsContent(paddingValues: PaddingValues) {
 
 @Composable
 fun NotificationCard(notification: Notification) {
+    var currentTime by remember { mutableStateOf(System.currentTimeMillis()) }
+    
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(50) // Atualiza a cada 50ms para animação suave
+            currentTime = System.currentTimeMillis()
+        }
+    }
+    
+    // Calcula a opacidade baseada no tempo para criar efeito piscante
+    val priority = notification.type.getPriority()
+    val (blinkColor, blinkSpeed) = when (priority) {
+        "high" -> Color.Red to 500f // Pisca rápido (500ms)
+        "medium" -> Color(0xFFFFA500) to 1000f // Pisca médio (1000ms) - Laranja/Amarelo
+        else -> Color(0xFF2980B9) to 1500f // Pisca lento (1500ms) - Azul
+    }
+    
+    val alpha = (sin((currentTime % blinkSpeed) / blinkSpeed * 2 * Math.PI) + 1) / 2
+    val blinkAlpha = 0.3f + (alpha * 0.7f).toFloat()
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -200,6 +233,25 @@ fun NotificationCard(notification: Notification) {
         colors = CardDefaults.cardColors(containerColor = Color(0xFF2D2D2D)),
         shape = RoundedCornerShape(12.dp)
     ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
+        ) {
+            // Bolinha piscante no canto superior direito
+            Surface(
+                modifier = Modifier
+                    .size(12.dp)
+                    .padding(top = 8.dp, end = 8.dp)
+                    .alpha(blinkAlpha),
+                shape = CircleShape,
+                color = blinkColor
+            ) {
+                // Conteúdo vazio, apenas a cor da superfície
+            }
+        }
+        
+        Spacer(modifier = Modifier.height(4.dp))
+        
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -210,7 +262,7 @@ fun NotificationCard(notification: Notification) {
                 text = notification.time,
                 color = Color.White.copy(alpha = 0.7f),
                 fontSize = 12.sp,
-                modifier = Modifier.padding(bottom = 4.dp)
+                modifier = Modifier.padding(bottom = 4.dp, top = 0.dp)
             )
             
             // Message

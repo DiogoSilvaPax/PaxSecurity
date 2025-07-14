@@ -381,11 +381,11 @@ fun getCamerasForUser(userId: Int): List<Camera> {
  * Foco em monitorização doméstica e familiar
  */
 private fun getCamerasOsmarG(): List<Camera> = listOf(
-    Camera(1, "Câmara Entrada", "Porta_Entrada", CameraStatus.ONLINE, "192.168.1.101", true, null, "10:30", 1),
-    Camera(2, "Câmara Sala", "Sala", CameraStatus.ONLINE, "192.168.1.102", false, null, "09:45", 1),
-    Camera(3, "Câmara Quarto", "Quarto", CameraStatus.ONLINE, "192.168.1.103", false, 15, "08:45", 1),
-    Camera(4, "Câmara Cozinha", "Cozinha", CameraStatus.OFFLINE, "192.168.1.104", false, null, "07:20", 1),
-    Camera(5, "Câmara Quintal", "Quintal", CameraStatus.ONLINE, "192.168.1.105", true, 85, "07:15", 1)
+    Camera(1, "Entrada", "Porta_Entrada", CameraStatus.ONLINE, "192.168.1.101", true, null, "10:30", 1),
+    Camera(2, "Sala", "Sala", CameraStatus.ONLINE, "192.168.1.102", false, null, "09:45", 1),
+    Camera(3, "Quarto", "Quarto", CameraStatus.ONLINE, "192.168.1.103", false, 15, "08:45", 1),
+    Camera(4, "Cozinha", "Cozinha", CameraStatus.OFFLINE, "192.168.1.104", false, null, "07:20", 1),
+    Camera(5, "Quintal", "Quintal", CameraStatus.ONLINE, "192.168.1.105", true, 85, "07:15", 1)
 )
 
 /**
@@ -393,12 +393,12 @@ private fun getCamerasOsmarG(): List<Camera> = listOf(
  * Foco em monitorização empresarial e controlo de acesso
  */
 private fun getCamerasDiogoS(): List<Camera> = listOf(
-    Camera(6, "Câmara Receção", "Rececao", CameraStatus.ONLINE, "192.168.2.101", true, null, "11:20", 2),
-    Camera(7, "Câmara Estacionamento", "Estacionamento_Carros", CameraStatus.ONLINE, "192.168.2.102", true, null, "10:15", 2),
-    Camera(8, "Câmara Armazém", "Armazem", CameraStatus.MAINTENANCE, "192.168.2.103", false, 45, "09:30", 2),
-    Camera(9, "Câmara Porta Principal", "Porta_Principal", CameraStatus.ONLINE, "192.168.2.104", true, null, "08:45", 2),
-    Camera(10, "Câmara Sala Reuniões", "Sala_Reunioes", CameraStatus.ONLINE, "192.168.2.105", false, 78, "07:50", 2),
-    Camera(11, "Câmara Pátio Exterior", "Patio_Exterior", CameraStatus.OFFLINE, "192.168.2.106", false, null, "06:30", 2)
+    Camera(6, "Receção", "Rececao", CameraStatus.ONLINE, "192.168.2.101", true, null, "11:20", 2),
+    Camera(7, "Estacionamento", "Estacionamento_Carros", CameraStatus.ONLINE, "192.168.2.102", true, null, "10:15", 2),
+    Camera(8, "Armazém", "Armazem", CameraStatus.MAINTENANCE, "192.168.2.103", false, 45, "09:30", 2),
+    Camera(9, "Porta Principal", "Porta_Principal", CameraStatus.ONLINE, "192.168.2.104", true, null, "08:45", 2),
+    Camera(10, "Sala Reuniões", "Sala_Reunioes", CameraStatus.ONLINE, "192.168.2.105", false, 78, "07:50", 2),
+    Camera(11, "Pátio Exterior", "Patio_Exterior", CameraStatus.OFFLINE, "192.168.2.106", false, null, "06:30", 2)
 )
 
 /**
@@ -406,17 +406,17 @@ private fun getCamerasDiogoS(): List<Camera> = listOf(
  * Acesso a todas as câmaras do sistema
  */
 private fun getCamerasAdmin(): List<Camera> = listOf(
-    Camera(1, "Câmara Entrada", "Porta_Entrada", CameraStatus.ONLINE, "192.168.1.102", false, null, "09:45", 3),
-    Camera(2, "Câmara Sala", "Sala", CameraStatus.ONLINE, "192.168.1.103", false, 15, "08:45", 3),
-    Camera(3, "Câmara Quarto", "Quarto", CameraStatus.OFFLINE, "192.168.1.104", false, 12, "07:20", 3),
-    Camera(4, "Câmara Cozinha", "Cozinha", CameraStatus.ERROR, "192.168.1.105", false, null, "06:45", 3),
-    Camera(5, "Câmara Quintal", "Quintal", CameraStatus.ONLINE, "192.168.1.106", true, 85, "06:30", 3),
-    Camera(6, "Câmara Receção", "Rececao", CameraStatus.ONLINE, "192.168.2.101", true, null, "11:20", 3),
-    Camera(7, "Câmara Estacionamento", "Estacionamento_Carros", CameraStatus.ONLINE, "192.168.2.102", true, null, "10:15", 3),
-    Camera(8, "Câmara Armazém", "Armazem", CameraStatus.MAINTENANCE, "192.168.2.103", false, 45, "09:30", 3),
-    Camera(9, "Câmara Porta Principal", "Porta_Principal", CameraStatus.ONLINE, "192.168.2.104", true, null, "08:45", 3),
-    Camera(10, "Câmara Sala Reuniões", "Sala_Reunioes", CameraStatus.ONLINE, "192.168.2.105", false, 78, "07:50", 3),
-    Camera(11, "Câmara Pátio Exterior", "Patio_Exterior", CameraStatus.OFFLINE, "192.168.2.106", false, null, "06:30", 3)
+    Camera(1, "Entrada", "Porta_Entrada", CameraStatus.ONLINE, "192.168.1.102", false, null, "09:45", 3),
+    Camera(2, "Sala", "Sala", CameraStatus.ONLINE, "192.168.1.103", false, 15, "08:45", 3),
+    Camera(3, "Quarto", "Quarto", CameraStatus.OFFLINE, "192.168.1.104", false, 12, "07:20", 3),
+    Camera(4, "Cozinha", "Cozinha", CameraStatus.ERROR, "192.168.1.105", false, null, "06:45", 3),
+    Camera(5, "Quintal", "Quintal", CameraStatus.ONLINE, "192.168.1.106", true, 85, "06:30", 3),
+    Camera(6, "Receção", "Rececao", CameraStatus.ONLINE, "192.168.2.101", true, null, "11:20", 3),
+    Camera(7, "Estacionamento", "Estacionamento_Carros", CameraStatus.ONLINE, "192.168.2.102", true, null, "10:15", 3),
+    Camera(8, "Armazém", "Armazem", CameraStatus.MAINTENANCE, "192.168.2.103", false, 45, "09:30", 3),
+    Camera(9, "Porta Principal", "Porta_Principal", CameraStatus.ONLINE, "192.168.2.104", true, null, "08:45", 3),
+    Camera(10, "Sala Reuniões", "Sala_Reunioes", CameraStatus.ONLINE, "192.168.2.105", false, 78, "07:50", 3),
+    Camera(11, "Pátio Exterior", "Patio_Exterior", CameraStatus.OFFLINE, "192.168.2.106", false, null, "06:30", 3)
 )
 
 /**
@@ -424,6 +424,6 @@ private fun getCamerasAdmin(): List<Camera> = listOf(
  * Conjunto básico de câmaras genéricas
  */
 private fun getCamerasDefault(): List<Camera> = listOf(
-    Camera(16, "Câmara Genérica 01", "Sala", CameraStatus.ONLINE, "192.168.9.101", false, null, "10:00", 0),
-    Camera(17, "Câmara Genérica 02", "Porta_Entrada", CameraStatus.ONLINE, "192.168.9.102", false, 50, "09:30", 0)
+    Camera(16, "Genérica 01", "Sala", CameraStatus.ONLINE, "192.168.9.101", false, null, "10:00", 0),
+    Camera(17, "Genérica 02", "Porta_Entrada", CameraStatus.ONLINE, "192.168.9.102", false, 50, "09:30", 0)
 )
