@@ -42,7 +42,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
-import kotlin.math.abs
 import kotlin.math.sin
 
 data class Notification(
@@ -224,7 +223,7 @@ fun NotificationCard(notification: Notification) {
     }
     
     // Efeito piscante mais pronunciado (de 0.1 a 1.0)
-    val alpha = (sin((currentTime % blinkSpeed) / blinkSpeed * 2 * Math.PI) + 1) / 2
+    val alpha = (sin((currentTime % blinkSpeed.toLong()) / blinkSpeed * 2 * Math.PI) + 1) / 2
     val blinkAlpha = 0.1f + (alpha * 0.9f).toFloat()
 
     Card(
