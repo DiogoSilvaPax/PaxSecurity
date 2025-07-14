@@ -1,38 +1,16 @@
 package com.example.projeto
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.Surface
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -42,7 +20,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
-import kotlin.math.sin
 
 data class Notification(
     val id: Int,
@@ -54,7 +31,7 @@ data class Notification(
 
 enum class NotificationType {
     ALERT, WARNING, INFO;
-    
+
     fun getPriority(): String {
         return when (this) {
             ALERT -> "high"
@@ -64,75 +41,28 @@ enum class NotificationType {
     }
 }
 
+// Cores bem definidas
+val RedAlert = Color(0xFFFF1744)
+val YellowAlert = Color(0xFFEBCB4A)
+val BlueAlert = Color(0xFF0D47A1)
+
 @Composable
 fun NotificationsContent(paddingValues: PaddingValues) {
     var isLoading by remember { mutableStateOf(true) }
     var notifications by remember { mutableStateOf<List<Notification>>(emptyList()) }
 
-    // Simular carregamento e criar notificações
     LaunchedEffect(Unit) {
-        delay(2000) // 2 segundos de loading
-        
-        // Criar notificações simples
+        delay(2000)
         notifications = listOf(
-            Notification(
-                id = 1,
-                title = "Movimento Detectado",
-                message = "Quintal - Movimento Detectado",
-                time = "29/05/2025 18:45",
-                type = NotificationType.ALERT
-            ),
-            Notification(
-                id = 2,
-                title = "Ligação Perdida",
-                message = "Quarto - Ligação Perdida",
-                time = "25/05/2025 09:32",
-                type = NotificationType.WARNING
-            ),
-            Notification(
-                id = 3,
-                title = "Movimento Detectado",
-                message = "Entrada - Movimento Detectado",
-                time = "22/03/2025 15:37",
-                type = NotificationType.ALERT
-            ),
-            Notification(
-                id = 4,
-                title = "Sistema",
-                message = "Sistema de segurança ativado",
-                time = "20/03/2025 08:15",
-                type = NotificationType.INFO
-            ),
-            Notification(
-                id = 5,
-                title = "Bateria Baixa",
-                message = "Sala - Bateria baixa",
-                time = "18/03/2025 14:22",
-                type = NotificationType.WARNING
-            ),
-            Notification(
-                id = 6,
-                title = "Acesso Autorizado",
-                message = "Acesso autorizado na entrada",
-                time = "15/03/2025 11:30",
-                type = NotificationType.INFO
-            ),
-            Notification(
-                id = 7,
-                title = "Manutenção",
-                message = "Manutenção programada para amanhã",
-                time = "12/03/2025 16:45",
-                type = NotificationType.INFO
-            ),
-            Notification(
-                id = 8,
-                title = "Conexão Restabelecida",
-                message = "Conexão restabelecida com todas as câmaras",
-                time = "10/03/2025 09:15",
-                type = NotificationType.INFO
-            )
+            Notification(1, "Movimento Detectado", "Quintal - Movimento Detectado", "29/05/2025 18:45", NotificationType.ALERT),
+            Notification(2, "Ligação Perdida", "Quarto - Ligação Perdida", "25/05/2025 09:32", NotificationType.WARNING),
+            Notification(3, "Movimento Detectado", "Entrada - Movimento Detectado", "22/03/2025 15:37", NotificationType.ALERT),
+            Notification(4, "Sistema", "Sistema de segurança ativado", "20/03/2025 08:15", NotificationType.INFO),
+            Notification(5, "Bateria Baixa", "Sala - Bateria baixa", "18/03/2025 14:22", NotificationType.WARNING),
+            Notification(6, "Acesso Autorizado", "Acesso autorizado na entrada", "15/03/2025 11:30", NotificationType.INFO),
+            Notification(7, "Manutenção", "Manutenção programada para amanhã", "12/03/2025 16:45", NotificationType.INFO),
+            Notification(8, "Conexão Restabelecida", "Conexão restabelecida com todas as câmaras", "10/03/2025 09:15", NotificationType.INFO)
         )
-        
         isLoading = false
     }
 
@@ -165,12 +95,7 @@ fun NotificationsContent(paddingValues: PaddingValues) {
             .padding(paddingValues)
             .padding(16.dp)
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(bottom = 250.dp)
-        ) {
-            // Empty row for spacing
-        }
+        Spacer(modifier = Modifier.height(250.dp))
 
         if (isLoading) {
             Column(
@@ -182,12 +107,11 @@ fun NotificationsContent(paddingValues: PaddingValues) {
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(48.dp)
                 )
-                Spacer(modifier = Modifier.padding(8.dp))
+                Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     text = "A carregar notificações...",
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontSize = 16.sp,
-                    modifier = Modifier.padding(top = 16.dp)
+                    fontSize = 16.sp
                 )
             }
         } else {
@@ -205,26 +129,40 @@ fun NotificationsContent(paddingValues: PaddingValues) {
 
 @Composable
 fun NotificationCard(notification: Notification) {
-    var currentTime by remember { mutableStateOf(System.currentTimeMillis()) }
-    
-    LaunchedEffect(Unit) {
-        while (true) {
-            delay(50) // Atualiza a cada 50ms para animação suave
-            currentTime = System.currentTimeMillis()
+    val blinkColor = when (notification.type) {
+        NotificationType.ALERT -> RedAlert
+        NotificationType.WARNING -> YellowAlert
+        NotificationType.INFO -> BlueAlert
+    }
+
+    // Define o alpha (animação só para ALERT e WARNING)
+    val blinkAlpha: Float = when (notification.type) {
+        NotificationType.ALERT -> {
+            val infiniteTransition = rememberInfiniteTransition(label = "blink_alert")
+            infiniteTransition.animateFloat(
+                initialValue = 0.2f,
+                targetValue = 1f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(durationMillis = 500, easing = LinearEasing),
+                    repeatMode = RepeatMode.Reverse
+                ),
+                label = "alpha_alert"
+            ).value
         }
+        NotificationType.WARNING -> {
+            val infiniteTransition = rememberInfiniteTransition(label = "blink_warning")
+            infiniteTransition.animateFloat(
+                initialValue = 0.2f,
+                targetValue = 1f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(durationMillis = 1800, easing = LinearEasing),
+                    repeatMode = RepeatMode.Reverse
+                ),
+                label = "alpha_warning"
+            ).value
+        }
+        NotificationType.INFO -> 1f // estático
     }
-    
-    // Calcula a opacidade baseada no tempo para criar efeito piscante
-    val priority = notification.type.getPriority()
-    val (blinkColor, blinkSpeed) = when (priority) {
-        "high" -> Color(0xFFFF0040) to 400f // Vermelho vibrante, pisca muito rápido
-        "medium" -> Color(0xFFFFD700) to 800f // Amarelo dourado vibrante, pisca médio
-        else -> Color(0xFF00BFFF) to 1200f // Azul ciano vibrante, pisca lento
-    }
-    
-    // Efeito piscante mais pronunciado (de 0.1 a 1.0)
-    val alpha = (sin((currentTime % blinkSpeed.toLong()) / blinkSpeed * 2 * Math.PI) + 1) / 2
-    val blinkAlpha = 0.1f + (alpha * 0.9f).toFloat()
 
     Card(
         modifier = Modifier
@@ -238,7 +176,6 @@ fun NotificationCard(notification: Notification) {
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            // Data/hora com bolinha piscante na mesma linha
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -249,22 +186,18 @@ fun NotificationCard(notification: Notification) {
                     color = Color.White.copy(alpha = 0.7f),
                     fontSize = 12.sp
                 )
-                
-                // Bolinha piscante vibrante
+
                 Surface(
                     modifier = Modifier
                         .size(14.dp)
                         .alpha(blinkAlpha),
                     shape = CircleShape,
                     color = blinkColor
-                ) {
-                    // Conteúdo vazio, apenas a cor da superfície
-                }
+                ) {}
             }
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
-            // Message
+
             Text(
                 text = notification.message,
                 color = Color.White,
@@ -274,3 +207,4 @@ fun NotificationCard(notification: Notification) {
         }
     }
 }
+
