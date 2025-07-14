@@ -18,7 +18,7 @@ import com.example.projeto.database.entities.*
         NotificationEntity::class,
         AuditLog::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 @TypeConverters(DateConverter::class, BigDecimalConverter::class)
