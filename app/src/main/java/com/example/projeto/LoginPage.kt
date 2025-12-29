@@ -65,7 +65,8 @@ class LoginPage : ComponentActivity() {
                         onLogout = {
                             userViewModel.logout()
                         },
-                        themeManager = ThemeManager()
+                        themeManager = ThemeManager(),
+                        userViewModel = this@LoginPage
                     )
                 } else {
                     LoginScreen(

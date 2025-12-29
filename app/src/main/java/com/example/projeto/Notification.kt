@@ -19,7 +19,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.delay
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.projeto.database.entities.NotificationEntity
+import com.example.projeto.viewmodel.NotificationViewModel
+import com.example.projeto.viewmodel.UserViewModel
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 data class Notification(
     val id: Int,
@@ -41,29 +46,25 @@ enum class NotificationType {
     }
 }
 
-// Cores bem definidas
 val RedAlert = Color(0xFFFF1744)
 val YellowAlert = Color(0xFFEBCB4A)
 val BlueAlert = Color(0xFF0D47A1)
 
 @Composable
-fun NotificationsContent(paddingValues: PaddingValues) {
-    var isLoading by remember { mutableStateOf(true) }
-    var notifications by remember { mutableStateOf<List<Notification>>(emptyList()) }
+fun NotificationsContent(paddingValues: PaddingValues, userViewModel: UserViewModel) {
+    val notificationViewModel: NotificationViewModel = viewModel()
+    val currentUser by userViewModel.currentUser.collectAsState()
+    val notificationsFromDb by notificationViewModel.notifications.collectAsState()
+    val isLoading by notificationViewModel.isLoading.collectAsState()
 
-    LaunchedEffect(Unit) {
-        delay(2000)
-        notifications = listOf(
-            Notification(1, "Movimento Detectado", "Quintal - Movimento Detectado", "29/05/2025 18:45", NotificationType.ALERT),
-            Notification(2, "Ligação Perdida", "Quarto - Ligação Perdida", "25/05/2025 09:32", NotificationType.WARNING),
-            Notification(3, "Movimento Detectado", "Entrada - Movimento Detectado", "22/03/2025 15:37", NotificationType.ALERT),
-            Notification(4, "Sistema", "Sistema de segurança ativado", "20/03/2025 08:15", NotificationType.INFO),
-            Notification(5, "Bateria Baixa", "Sala - Bateria baixa", "18/03/2025 14:22", NotificationType.WARNING),
-            Notification(6, "Acesso Autorizado", "Acesso autorizado na entrada", "15/03/2025 11:30", NotificationType.INFO),
-            Notification(7, "Manutenção", "Manutenção programada para amanhã", "12/03/2025 16:45", NotificationType.INFO),
-            Notification(8, "Conexão Restabelecida", "Conexão restabelecida com todas as câmaras", "10/03/2025 09:15", NotificationType.INFO)
-        )
-        isLoading = false
+    LaunchedEffect(currentUser) {
+        currentUser?.let { user ->
+            notificationViewModel.loadNotificationsForUser(user.userId)
+        }
+    }
+
+    val notifications = remember(notificationsFromDb) {
+        notificationsFromDb.map { it.toNotification() }
     }
 
     Column(modifier = Modifier.padding(paddingValues)) {
@@ -128,14 +129,13 @@ fun NotificationsContent(paddingValues: PaddingValues) {
 }
 
 @Composable
-fun NotificationCard(notification: Notification) {
+fun NotificationCard(notification: Notification, onMarkAsRead: () -> Unit = {}) {
     val blinkColor = when (notification.type) {
         NotificationType.ALERT -> RedAlert
         NotificationType.WARNING -> YellowAlert
         NotificationType.INFO -> BlueAlert
     }
 
-    // Define o alpha (animação só para ALERT e WARNING)
     val blinkAlpha: Float = when (notification.type) {
         NotificationType.ALERT -> {
             val infiniteTransition = rememberInfiniteTransition(label = "blink_alert")
@@ -161,13 +161,13 @@ fun NotificationCard(notification: Notification) {
                 label = "alpha_warning"
             ).value
         }
-        NotificationType.INFO -> 1f // estático
+        NotificationType.INFO -> 1f
     }
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { /* Marcar como lida */ },
+            .clickable { onMarkAsRead() },
         colors = CardDefaults.cardColors(containerColor = Color(0xFF2D2D2D)),
         shape = RoundedCornerShape(12.dp)
     ) {
@@ -206,5 +206,24 @@ fun NotificationCard(notification: Notification) {
             )
         }
     }
+}
+
+fun NotificationEntity.toNotification(): Notification {
+    val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+    val formattedTime = dateFormat.format(notificationDate)
+
+    val notifType = when (priority) {
+        "high" -> NotificationType.ALERT
+        "medium" -> NotificationType.WARNING
+        else -> NotificationType.INFO
+    }
+
+    return Notification(
+        id = notificationId,
+        title = type,
+        message = message,
+        time = formattedTime,
+        type = notifType
+    )
 }
 

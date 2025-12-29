@@ -36,7 +36,7 @@ class MainActivity : ComponentActivity() {
 
 
 @Composable
-fun MainScreen(themeManager: ThemeManager, onLogout: () -> Unit = {}) {
+fun MainScreen(themeManager: ThemeManager, onLogout: () -> Unit = {}, userViewModel: androidx.lifecycle.ViewModelStoreOwner? = null) {
     var selectedTab by remember { mutableStateOf(0) }
 
     Scaffold(
@@ -83,7 +83,12 @@ fun MainScreen(themeManager: ThemeManager, onLogout: () -> Unit = {}) {
     ) { paddingValues ->
         when (selectedTab) {
             0 -> CameraContent(paddingValues = paddingValues)
-            1 -> NotificationsContent(paddingValues = paddingValues)
+            1 -> {
+                val viewModel: com.example.projeto.viewmodel.UserViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                    viewModelStoreOwner = userViewModel ?: androidx.compose.ui.platform.LocalContext.current as androidx.activity.ComponentActivity
+                )
+                NotificationsContent(paddingValues = paddingValues, userViewModel = viewModel)
+            }
             2 -> SettingsPage(themeManager = themeManager, onLogout = onLogout)
         }
     }
