@@ -81,13 +81,44 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
     
+    private val _registerState = MutableStateFlow<RegisterState>(RegisterState.Idle)
+    val registerState: StateFlow<RegisterState> = _registerState.asStateFlow()
+
     fun registerUser(username: String, password: String, email: String) {
         viewModelScope.launch {
+            _registerState.value = RegisterState.Loading
             try {
-                repository.registerUser(username, password, email)
+                if (username.isEmpty() || password.isEmpty() || email.isEmpty()) {
+                    _registerState.value = RegisterState.Error("Por favor, preencha todos os campos")
+                    return@launch
+                }
+
+                if (password.length < 6) {
+                    _registerState.value = RegisterState.Error("Palavra-passe deve ter pelo menos 6 caracteres")
+                    return@launch
+                }
+
+                val existingUser = repository.getUserByUsername(username)
+                if (existingUser != null) {
+                    _registerState.value = RegisterState.Error("Utilizador já existe")
+                    return@launch
+                }
+
+                val user = repository.registerUser(username, password, email)
+                if (user != null) {
+                    _currentUser.value = user
+                    _registerState.value = RegisterState.Success
+                } else {
+                    _registerState.value = RegisterState.Error("Erro ao registar utilizador")
+                }
             } catch (e: Exception) {
+                _registerState.value = RegisterState.Error("Erro: ${e.message}")
             }
         }
+    }
+
+    fun resetRegisterState() {
+        _registerState.value = RegisterState.Idle
     }
 }
 
@@ -96,4 +127,11 @@ sealed class LoginState {
     object Loading : LoginState()
     object Success : LoginState()
     data class Error(val message: String) : LoginState()
+}
+
+sealed class RegisterState {
+    object Idle : RegisterState()
+    object Loading : RegisterState()
+    object Success : RegisterState()
+    data class Error(val message: String) : RegisterState()
 }

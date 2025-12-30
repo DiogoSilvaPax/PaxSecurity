@@ -82,6 +82,33 @@ class LoginPage : ComponentActivity() {
 fun LoginScreen(
     userViewModel: UserViewModel
 ) {
+    var showRegistration by remember { mutableStateOf(false) }
+
+    if (showRegistration) {
+        UserRegistrationScreen(
+            userViewModel = userViewModel,
+            onRegistrationSuccess = {
+                showRegistration = false
+            },
+            onBackClick = {
+                showRegistration = false
+            }
+        )
+    } else {
+        LoginScreenContent(
+            userViewModel = userViewModel,
+            onRegisterClick = {
+                showRegistration = true
+            }
+        )
+    }
+}
+
+@Composable
+fun LoginScreenContent(
+    userViewModel: UserViewModel,
+    onRegisterClick: () -> Unit
+) {
     val loginState by userViewModel.loginState.collectAsState()
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -98,7 +125,7 @@ fun LoginScreen(
             painter = painterResource(id = R.drawable.logobranco),
             contentDescription = "Logo",
             modifier = Modifier
-                .size(300.dp) // Aumenta o tamanho
+                .size(300.dp)
         )
 
         Spacer(modifier = Modifier.height(40.dp))
@@ -156,8 +183,18 @@ fun LoginScreen(
                 Text("Login", color = MaterialTheme.colorScheme.onPrimary)
             }
         }
-        
-        // Handle error state properly
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = onRegisterClick,
+            enabled = loginState !is LoginState.Loading,
+            colors = ButtonDefaults.outlinedButtonColors(),
+            modifier = Modifier.height(48.dp)
+        ) {
+            Text("Criar Novo Utilizador")
+        }
+
         when (val currentState = loginState) {
             is LoginState.Error -> {
                 Spacer(modifier = Modifier.height(16.dp))
